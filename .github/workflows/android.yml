@@ -25,20 +25,22 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - uses: android-actions/setup-android@v3
-
       - name: Install SDK components
         run: |
-          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platform-tools" "platforms;android-37.0" "build-tools;37.0.0"
+          SDK="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          export ANDROID_SDK_ROOT="$SDK"
+          export ANDROID_HOME="$SDK"
+          SDKMANAGER="$(find "$SDK/cmdline-tools" -name sdkmanager -type f | sort | tail -1)"
+          echo "Using sdkmanager: $SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-37.0" "build-tools;37.0.0"
           ln -sfn "$SDK/platforms/android-37.0" "$SDK/platforms/android-37" || true
-          sdkmanager "cmake;3.22.1" || true
-          sdkmanager "ndk;29.0.14206865" || true
+          "$SDKMANAGER" "cmake;3.22.1" || true
+          "$SDKMANAGER" "ndk;29.0.14206865" || true
 
       - name: Prepare signing config
         run: |
-          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          SDK="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
           keytool -genkeypair -v \
             -keystore "$RUNNER_TEMP/debug.keystore" \
             -storepass android -keypass android \
