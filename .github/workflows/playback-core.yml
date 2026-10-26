@@ -6,6 +6,7 @@ on:
     branches: [ master, main ]
     paths:
       - "playback-core/**"
+      - "playback-demo/**"
       - "gradle/**"
       - "settings.gradle"
       - ".github/workflows/playback-core.yml"
@@ -64,4 +65,16 @@ jobs:
         with:
           name: playback-core-debug
           path: playback-core/build/outputs/aar/*.aar
+          if-no-files-found: error
+
+      - name: Build playback demo
+        run: |
+          chmod +x gradlew
+          ./gradlew :playback-demo:assembleDebug --no-daemon --stacktrace
+
+      - name: Upload demo APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: playback-demo-debug
+          path: playback-demo/build/outputs/apk/debug/*.apk
           if-no-files-found: error
