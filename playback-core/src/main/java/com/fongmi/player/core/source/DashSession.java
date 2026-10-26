@@ -7,6 +7,8 @@ import com.fongmi.player.core.source.dash.DashManifest;
 import com.fongmi.player.core.source.dash.DashParser;
 import com.fongmi.player.core.source.dash.DashRepresentation;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -21,37 +23,34 @@ public final class DashSession {
     }
 
     public SourceHandle open() throws PlaybackException {
+        return open(-1, 0L);
+    }
+
+    public SourceHandle open(int requestedIndex, long startPositionUs) throws PlaybackException {
         SegmentLoader loader = new SegmentLoader();
         String xml = loader.loadText(uri.toString(), headers);
         DashManifest manifest = DashParser.parse(xml, uri.toString());
-        DashRepresentation video = selectVideo(manifest.getRepresentations());
+        List<DashRepresentation> videos = new ArrayList<>();
+        for (DashRepresentation representation : manifest.getRepresentations()) {
+            if (representation.isVideo() && !representation.getSegments().isEmpty()) videos.add(representation);
+        }
+        videos.sort(Comparator.comparingLong(DashRepresentation::getBandwidth));
+        List<Quality> qualities = new ArrayList<>();
+        for (int i = 0; i < videos.size(); i++) {
+            DashRepresentation representation = videos.get(i);
+            qualities.add(new Quality(i, representation.getWidth(), representation.getHeight(), representation.getBandwidth()));
+        }
+        int index = requestedIndex >= 0 && requestedIndex < videos.size() ? requestedIndex : (qualities.isEmpty() ? -1 : qualities.get(0).getIndex());
+        DashRepresentation video = index >= 0 ? videos.get(index) : null;
         DashRepresentation audio = selectAudio(manifest.getRepresentations());
         if (video == null && audio == null) throw new PlaybackException(PlaybackException.SOURCE_UNSUPPORTED, "No DASH representation");
-        SegmentMediaDataSource videoSource = video == null ? null : new SegmentMediaDataSource(video.getSegments(), headers);
-        SegmentMediaDataSource audioSource = audio == null ? null : new SegmentMediaDataSource(audio.getSegments(), headers);
+        BandwidthEstimator estimator = video == null ? null : new BandwidthEstimator();
+        SegmentMediaDataSource videoSource = video == null ? null : new SegmentMediaDataSource(filter(video.getSegments(), startPositionUs), headers, estimator);
+        SegmentMediaDataSource audioSource = audio == null ? null : new SegmentMediaDataSource(filter(audio.getSegments(), startPositionUs), headers, null);
         long durationUs = manifest.getDurationUs();
         if (durationUs <= 0L && video != null) durationUs = video.getDurationUs();
         if (durationUs <= 0L && audio != null) durationUs = audio.getDurationUs();
-        if (videoSource != null && audioSource != null) return SourceHandle.dual(videoSource, audioSource, durationUs);
-        if (videoSource != null) return SourceHandle.single(videoSource, durationUs);
-        return SourceHandle.single(audioSource, durationUs);
-    }
-
-    private DashRepresentation selectVideo(List<DashRepresentation> representations) {
-        DashRepresentation selected = null;
-        for (DashRepresentation representation : representations) {
-            if (!representation.isVideo()) continue;
-            if (representation.getSegments().isEmpty()) continue;
-            if (selected == null) {
-                selected = representation;
-                continue;
-            }
-            boolean fits = representation.getHeight() > 0 && representation.getHeight() <= 1080;
-            boolean higher = representation.getHeight() >= selected.getHeight();
-            boolean downgrade = selected.getHeight() > 1080;
-            if (fits && (selected.getHeight() <= 0 || downgrade || higher)) selected = representation;
-        }
-        return selected;
+        return SourceHandle.adaptive(videoSource, audioSource, durationUs, estimator, qualities, index);
     }
 
     private DashRepresentation selectAudio(List<DashRepresentation> representations) {
@@ -62,5 +61,20 @@ public final class DashSession {
             if (selected == null || representation.getBandwidth() > selected.getBandwidth()) selected = representation;
         }
         return selected;
+    }
+
+    private List<Segment> filter(List<Segment> segments, long startPositionUs) {
+        if (startPositionUs <= 0L) return segments;
+        List<Segment> result = new ArrayList<>();
+        boolean started = false;
+        for (Segment segment : segments) {
+            if (segment.getDurationUs() <= 0L) {
+                result.add(segment);
+                continue;
+            }
+            if (!started && segment.getStartTimeUs() + segment.getDurationUs() > startPositionUs) started = true;
+            if (started) result.add(segment);
+        }
+        return result.isEmpty() ? segments : result;
     }
 }

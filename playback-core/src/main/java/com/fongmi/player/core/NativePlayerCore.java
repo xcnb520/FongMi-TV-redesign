@@ -5,6 +5,7 @@ import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.view.Surface;
 
 import com.fongmi.player.core.audio.AudioClock;
@@ -15,9 +16,13 @@ import com.fongmi.player.core.decode.VideoDecoder;
 import com.fongmi.player.core.demux.ExtractorDemuxer;
 import com.fongmi.player.core.demux.SampleQueue;
 import com.fongmi.player.core.render.VideoRenderer;
+import com.fongmi.player.core.source.AbrSelector;
+import com.fongmi.player.core.source.BandwidthEstimator;
+import com.fongmi.player.core.source.Quality;
 import com.fongmi.player.core.source.SourceHandle;
 import com.fongmi.player.core.util.MediaUtil;
 
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class NativePlayerCore implements PlayerCore {
@@ -36,7 +41,9 @@ public final class NativePlayerCore implements PlayerCore {
     private volatile Surface surface;
     private volatile float volume = 1f;
     private volatile float speed = 1f;
+    private volatile int qualityIndex = -1;
 
+    private SourceHandle currentHandle;
     private ExtractorDemuxer demuxer;
     private SampleQueue videoQueue;
     private SampleQueue audioQueue;
@@ -49,6 +56,7 @@ public final class NativePlayerCore implements PlayerCore {
     private MediaFormat videoFormat;
     private boolean playWhenReady;
     private long pendingSeekUs = -1L;
+    private long lastQualitySwitchMs;
     private boolean videoEos;
     private boolean audioEos;
 
@@ -67,63 +75,69 @@ public final class NativePlayerCore implements PlayerCore {
             this.durationUs = 0L;
             this.pendingSeekUs = -1L;
             this.playWhenReady = false;
+            this.qualityIndex = -1;
             this.state = source == null ? PlayerState.IDLE : PlayerState.READY;
         });
     }
 
     @Override
     public void prepare() {
-        post(() -> {
-            if (source == null) return;
-            releasePipeline();
-            state = PlayerState.PREPARING;
-            try {
-                videoQueue = new SampleQueue(48);
-                audioQueue = new SampleQueue(96);
-                SourceHandle handle = source.open(context);
-                demuxer = new ExtractorDemuxer(context, handle, videoQueue, audioQueue, demuxerListener);
-                demuxer.prepare();
-                tracks = demuxer.getTracks();
-                durationUs = demuxer.getDurationUs();
-                videoFormat = demuxer.getVideoFormat();
-                MediaFormat audioFormat = demuxer.getAudioFormat();
-                demuxer.setVideoEnabled(surface != null && videoFormat != null);
-                demuxer.setAudioEnabled(audioFormat != null);
-                if (audioFormat != null) {
-                    audioDecoder = new AudioDecoder(audioFormat, audioQueue, audioListener);
-                    try {
-                        audioDecoder.start();
-                        audioClock = new AudioClock(audioDecoder);
-                        clock = audioClock;
-                    } catch (PlaybackException e) {
-                        audioDecoder.release();
-                        audioDecoder = null;
-                        demuxer.setAudioEnabled(false);
-                    }
+        post(() -> prepareInternal(0L, playWhenReady));
+    }
+
+    private void prepareInternal(long startPositionUs, boolean autoPlay) {
+        if (source == null) return;
+        releasePipeline();
+        state = PlayerState.PREPARING;
+        try {
+            videoQueue = new SampleQueue(48);
+            audioQueue = new SampleQueue(96);
+            currentHandle = source.open(context);
+            qualityIndex = currentHandle.getQualityIndex();
+            demuxer = new ExtractorDemuxer(context, currentHandle, videoQueue, audioQueue, demuxerListener);
+            demuxer.prepare();
+            tracks = demuxer.getTracks();
+            durationUs = demuxer.getDurationUs();
+            videoFormat = demuxer.getVideoFormat();
+            MediaFormat audioFormat = demuxer.getAudioFormat();
+            demuxer.setVideoEnabled(surface != null && videoFormat != null);
+            demuxer.setAudioEnabled(audioFormat != null);
+            if (audioFormat != null) {
+                audioDecoder = new AudioDecoder(audioFormat, audioQueue, audioListener);
+                try {
+                    audioDecoder.start();
+                    audioClock = new AudioClock(audioDecoder);
+                    clock = audioClock;
+                } catch (PlaybackException e) {
+                    audioDecoder.release();
+                    audioDecoder = null;
+                    demuxer.setAudioEnabled(false);
                 }
-                if (clock == null) {
-                    systemClock = new SystemMasterClock();
-                    clock = systemClock;
-                }
-                if (videoFormat != null && surface != null) createVideoPipeline();
-                prepared = true;
-                state = PlayerState.READY;
-                notifyPrepared();
-                if (pendingSeekUs >= 0L) {
-                    long positionUs = pendingSeekUs;
-                    pendingSeekUs = -1L;
-                    seekInternal(positionUs);
-                }
-                if (playWhenReady) {
-                    playInternal();
-                    state = PlayerState.PLAYING;
-                }
-            } catch (PlaybackException e) {
-                fail(e);
-            } catch (Exception e) {
-                fail(new PlaybackException(PlaybackException.UNKNOWN, e.getMessage(), e));
             }
-        });
+            if (clock == null) {
+                systemClock = new SystemMasterClock();
+                clock = systemClock;
+            }
+            if (videoFormat != null && surface != null) createVideoPipeline();
+            long seekUs = startPositionUs > 0L ? startPositionUs : pendingSeekUs;
+            pendingSeekUs = -1L;
+            if (seekUs > 0L) demuxer.seekTo(seekUs);
+            prepared = true;
+            state = PlayerState.READY;
+            notifyPrepared();
+            if (autoPlay || playWhenReady) {
+                playInternal();
+                state = PlayerState.PLAYING;
+            }
+        } catch (PlaybackException e) {
+            if (demuxer == null && currentHandle != null) {
+                currentHandle.close();
+                currentHandle = null;
+            }
+            fail(e);
+        } catch (Exception e) {
+            fail(new PlaybackException(PlaybackException.UNKNOWN, e.getMessage(), e));
+        }
     }
 
     @Override
@@ -157,6 +171,7 @@ public final class NativePlayerCore implements PlayerCore {
             state = PlayerState.IDLE;
             tracks = new TrackInfo[0];
             durationUs = 0L;
+            qualityIndex = -1;
         });
     }
 
@@ -212,10 +227,29 @@ public final class NativePlayerCore implements PlayerCore {
     }
 
     @Override
+    public void setQuality(int index) {
+        post(() -> {
+            if (!(source instanceof AdaptiveSource)) return;
+            if (!prepared) {
+                qualityIndex = index;
+                return;
+            }
+            if (index == qualityIndex) return;
+            switchQuality(index);
+        });
+    }
+
+    @Override
+    public int getQuality() {
+        return qualityIndex;
+    }
+
+    @Override
     public void release() {
         if (state == PlayerState.RELEASED) return;
         control.post(() -> {
             playWhenReady = false;
+            cancelAbr();
             releasePipeline();
             state = PlayerState.RELEASED;
             listeners.clear();
@@ -267,6 +301,18 @@ public final class NativePlayerCore implements PlayerCore {
         control.post(runnable);
     }
 
+    private void switchQuality(int index) {
+        if (!(source instanceof AdaptiveSource)) return;
+        long positionUs = MediaUtil.msToUs(getPosition());
+        boolean playing = state == PlayerState.PLAYING;
+        AdaptiveSource adaptive = (AdaptiveSource) source;
+        adaptive.setQualityIndex(index);
+        adaptive.setStartPositionUs(positionUs);
+        qualityIndex = index;
+        lastQualitySwitchMs = SystemClock.elapsedRealtime();
+        prepareInternal(positionUs, playing);
+    }
+
     private void createVideoPipeline() throws PlaybackException {
         if (videoFormat == null || surface == null) return;
         releaseVideoPipeline();
@@ -293,6 +339,7 @@ public final class NativePlayerCore implements PlayerCore {
     }
 
     private void releasePipeline() {
+        cancelAbr();
         releaseVideoPipeline();
         if (audioDecoder != null) {
             audioDecoder.release();
@@ -310,6 +357,7 @@ public final class NativePlayerCore implements PlayerCore {
             audioQueue.release();
             audioQueue = null;
         }
+        currentHandle = null;
         audioClock = null;
         systemClock = null;
         clock = null;
@@ -327,9 +375,11 @@ public final class NativePlayerCore implements PlayerCore {
             demuxer.start();
             demuxer.resume();
         }
+        scheduleAbr();
     }
 
     private void pauseInternal() {
+        cancelAbr();
         if (videoRenderer != null) videoRenderer.setPlaying(false);
         if (audioDecoder != null) audioDecoder.pause();
         if (demuxer != null) demuxer.pause();
@@ -358,6 +408,35 @@ public final class NativePlayerCore implements PlayerCore {
         }
         notifyBuffering(false, 0);
     }
+
+    private void scheduleAbr() {
+        cancelAbr();
+        if (currentHandle == null || currentHandle.getEstimator() == null) return;
+        control.postDelayed(abrTask, 3000L);
+    }
+
+    private void cancelAbr() {
+        control.removeCallbacks(abrTask);
+    }
+
+    private final Runnable abrTask = new Runnable() {
+        @Override
+        public void run() {
+            if (state != PlayerState.PLAYING || currentHandle == null) return;
+            BandwidthEstimator estimator = currentHandle.getEstimator();
+            List<Quality> qualities = currentHandle.getQualities();
+            if (estimator == null || qualities == null || qualities.isEmpty() || estimator.estimateBps() <= 0L) {
+                control.postDelayed(this, 3000L);
+                return;
+            }
+            int target = AbrSelector.select(qualities, estimator.estimateBps(), qualityIndex);
+            if (target != qualityIndex && SystemClock.elapsedRealtime() - lastQualitySwitchMs > 6000L) {
+                switchQuality(target);
+                return;
+            }
+            control.postDelayed(this, 3000L);
+        }
+    };
 
     private void fail(PlaybackException error) {
         state = PlayerState.ERROR;

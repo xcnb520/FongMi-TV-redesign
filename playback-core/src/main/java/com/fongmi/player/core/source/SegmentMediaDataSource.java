@@ -1,6 +1,7 @@
 package com.fongmi.player.core.source;
 
 import android.media.MediaDataSource;
+import android.os.SystemClock;
 
 import com.fongmi.player.core.PlaybackException;
 
@@ -16,13 +17,19 @@ public final class SegmentMediaDataSource extends MediaDataSource {
     private final List<Segment> segments;
     private final Map<String, String> headers;
     private final SegmentLoader loader = new SegmentLoader();
+    private final BandwidthEstimator estimator;
     private final long[] lengths;
     private final LinkedHashMap<Integer, byte[]> cache = new LinkedHashMap<>(MAX_CACHED_SEGMENTS, 0.75f, true);
     private boolean closed;
 
     public SegmentMediaDataSource(List<Segment> segments, Map<String, String> headers) {
+        this(segments, headers, null);
+    }
+
+    public SegmentMediaDataSource(List<Segment> segments, Map<String, String> headers, BandwidthEstimator estimator) {
         this.segments = new ArrayList<>(segments);
         this.headers = headers;
+        this.estimator = estimator;
         this.lengths = new long[this.segments.size()];
         for (int i = 0; i < lengths.length; i++) lengths[i] = -1L;
     }
@@ -81,7 +88,9 @@ public final class SegmentMediaDataSource extends MediaDataSource {
 
     private long download(int index) throws PlaybackException {
         if (index < 0 || index >= segments.size()) return -1L;
+        long started = SystemClock.elapsedRealtime();
         byte[] data = loader.load(segments.get(index), headers);
+        if (estimator != null) estimator.sample(data.length, Math.max(1L, SystemClock.elapsedRealtime() - started));
         lengths[index] = data.length;
         cache.put(index, data);
         while (cache.size() > MAX_CACHED_SEGMENTS) {

@@ -39,4 +39,11 @@ public interface PlayerCore {
     void addListener(PlayerListener listener);
 
     void removeListener(PlayerListener listener);
+
+    default void setQuality(int index) {
+    }
+
+    default int getQuality() {
+        return -1;
+    }
 }
