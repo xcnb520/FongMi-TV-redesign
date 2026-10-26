@@ -75,7 +75,7 @@ public final class ExtractorDemuxer {
                 audioExtractor.selectTrack(audioTrack);
             } else {
                 singleExtractor = new MediaExtractor();
-                MediaDataSource dataSource = handle.getVideoDataSource();
+                MediaDataSource dataSource = handle.getVideoDataSource() != null ? handle.getVideoDataSource() : handle.getAudioDataSource();
                 if (dataSource != null) singleExtractor.setDataSource(dataSource);
                 else if (handle.hasUri()) singleExtractor.setDataSource(context, handle.getUri(), handle.getHeaders());
                 else throw new PlaybackException(PlaybackException.SOURCE_UNSUPPORTED, "No source");

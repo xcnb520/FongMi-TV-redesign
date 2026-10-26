@@ -67,14 +67,18 @@ public final class DashSession {
         if (startPositionUs <= 0L) return segments;
         List<Segment> result = new ArrayList<>();
         boolean started = false;
+        boolean hasMedia = false;
         for (Segment segment : segments) {
             if (segment.getDurationUs() <= 0L) {
                 result.add(segment);
                 continue;
             }
             if (!started && segment.getStartTimeUs() + segment.getDurationUs() > startPositionUs) started = true;
-            if (started) result.add(segment);
+            if (started) {
+                result.add(segment);
+                hasMedia = true;
+            }
         }
-        return result.isEmpty() ? segments : result;
+        return hasMedia ? result : segments;
     }
 }
