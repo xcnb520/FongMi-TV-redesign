@@ -55,7 +55,9 @@ jobs:
           } > local.properties
 
       - name: Build mobile debug APK
-        run: ./gradlew :app:assembleMobileDebug --no-daemon --stacktrace
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleMobileDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
