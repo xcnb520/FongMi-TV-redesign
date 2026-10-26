@@ -29,6 +29,9 @@ run_case() {
 run_case mp4 "http://10.0.2.2:8000/video.mp4"
 run_case hls "http://10.0.2.2:8000/vod/index.m3u8"
 run_case av "http://10.0.2.2:8000/av/index.m3u8"
+run_case late "http://10.0.2.2:8000/late/index.m3u8"
+run_case fmp4 "http://10.0.2.2:8000/fmp4/index.m3u8"
+run_case master "http://10.0.2.2:8000/master.m3u8"
 
 echo "=== audio check ==="
 if grep -q "AudioTrack play" "logcat-av.txt"; then

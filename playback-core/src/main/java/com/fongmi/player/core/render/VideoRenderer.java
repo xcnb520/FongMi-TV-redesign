@@ -35,6 +35,7 @@ public final class VideoRenderer {
     private Choreographer choreographer;
     private volatile boolean released;
     private boolean firstFrameRendered;
+    private long ptsOffsetUs;
     private volatile boolean playing;
 
     public VideoRenderer(VideoDecoder decoder, MasterClock clock, Listener listener) {
@@ -74,6 +75,7 @@ public final class VideoRenderer {
             frames.clear();
         }
         firstFrameRendered = false;
+        ptsOffsetUs = 0L;
     }
 
     public void release() {
@@ -101,11 +103,23 @@ public final class VideoRenderer {
                 choreographer.postFrameCallback(this);
                 return;
             }
-            long delayUs = frame.getPtsUs() - clock.positionUs();
+            long framePtsUs = frame.getPtsUs() - ptsOffsetUs;
+            long delayUs = framePtsUs - clock.positionUs();
+            if (!firstFrameRendered && delayUs < -DROP_THRESHOLD_US) {
+                ptsOffsetUs += delayUs;
+                framePtsUs = frame.getPtsUs() - ptsOffsetUs;
+                delayUs = framePtsUs - clock.positionUs();
+                Log.i(TAG, "late first frame aligned offsetUs=" + ptsOffsetUs);
+            } else if (!firstFrameRendered && !(clock instanceof SystemMasterClock) && delayUs > 2_000_000L) {
+                ptsOffsetUs += delayUs;
+                framePtsUs = frame.getPtsUs() - ptsOffsetUs;
+                delayUs = framePtsUs - clock.positionUs();
+                Log.i(TAG, "early first frame aligned offsetUs=" + ptsOffsetUs);
+            }
             if (!firstFrameRendered && clock instanceof SystemMasterClock && Math.abs(delayUs) > EARLY_THRESHOLD_US) {
-                ((SystemMasterClock) clock).syncTo(frame.getPtsUs());
-                delayUs = frame.getPtsUs() - clock.positionUs();
-                Log.i(TAG, "video clock synced to " + frame.getPtsUs());
+                ((SystemMasterClock) clock).syncTo(framePtsUs);
+                delayUs = framePtsUs - clock.positionUs();
+                Log.i(TAG, "video clock synced to " + framePtsUs);
             }
             if (delayUs > EARLY_THRESHOLD_US) {
                 choreographer.postFrameCallback(this);

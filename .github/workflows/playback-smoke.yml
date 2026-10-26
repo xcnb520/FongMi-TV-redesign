@@ -62,16 +62,32 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-          mkdir -p media/vod media/av
+          mkdir -p media/vod media/av media/late media/fmp4 media/audioonly
           ffmpeg -y -f lavfi -i testsrc2=size=640x360:rate=30 -t 8 \
             -c:v libx264 -profile:v baseline -level 3.1 -pix_fmt yuv420p -g 30 -an -movflags +faststart media/video.mp4
           ffmpeg -y -i media/video.mp4 -c copy -f hls -hls_time 2 -hls_list_size 0 \
             -hls_segment_filename "media/vod/seg%d.ts" media/vod/index.m3u8
+          ffmpeg -y -f lavfi -i sine=frequency=440:sample_rate=44100 -t 8 -c:a aac -b:a 96k media/audio.m4a
           ffmpeg -y -f lavfi -i testsrc2=size=640x360:rate=30 -f lavfi -i sine=frequency=440:sample_rate=44100 -t 8 \
             -c:v libx264 -profile:v baseline -level 3.1 -pix_fmt yuv420p -g 30 \
             -c:a aac -b:a 96k -shortest -movflags +faststart media/av.mp4
           ffmpeg -y -i media/av.mp4 -c copy -f hls -hls_time 2 -hls_list_size 0 \
             -hls_segment_filename "media/av/seg%d.ts" media/av/index.m3u8
+          ffmpeg -y -i media/video.mp4 -itsoffset 2 -i media/audio.m4a -map 0:v -map 1:a -c copy -shortest media/late.mp4
+          ffmpeg -y -i media/late.mp4 -c copy -f hls -hls_time 2 -hls_list_size 0 \
+            -hls_segment_filename "media/late/seg%d.ts" media/late/index.m3u8
+          ffmpeg -y -i media/av.mp4 -c copy -f hls -hls_time 2 -hls_list_size 0 -hls_segment_type fmp4 \
+            -hls_fmp4_init_filename init.mp4 -hls_segment_filename "media/fmp4/seg%d.m4s" media/fmp4/index.m3u8
+          ffmpeg -y -i media/audio.m4a -c copy -f hls -hls_time 2 -hls_list_size 0 \
+            -hls_segment_filename "media/audioonly/seg%d.ts" media/audioonly/index.m3u8
+          cat > media/master.m3u8 <<'EOF'
+          #EXTM3U
+          #EXT-X-STREAM-INF:BANDWIDTH=128000,CODECS="mp4a.40.2"
+          audioonly/index.m3u8
+          #EXT-X-STREAM-INF:BANDWIDTH=900000,RESOLUTION=640x360,CODECS="avc1.42c01e,mp4a.40.2"
+          av/index.m3u8
+          EOF
+          ffprobe -v error -show_entries stream=index,codec_type,start_time -of compact media/late.mp4
           echo "=== vod playlist ==="
           cat media/vod/index.m3u8
           echo "=== files ==="

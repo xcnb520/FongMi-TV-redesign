@@ -7,6 +7,7 @@ import com.fongmi.player.core.source.hls.HlsParser;
 import com.fongmi.player.core.source.hls.HlsPlaylist;
 import com.fongmi.player.core.source.hls.HlsVariant;
 
+import java.util.Locale;
 import java.util.Map;
 
 public final class HlsSession {
@@ -35,15 +36,33 @@ public final class HlsSession {
     private HlsVariant selectVariant(HlsPlaylist playlist) {
         HlsVariant selected = null;
         for (HlsVariant variant : playlist.getVariants()) {
+            if (!hasVideo(variant)) continue;
             if (selected == null) {
                 selected = variant;
                 continue;
             }
-            boolean fits = variant.getHeight() > 0 && variant.getHeight() <= 1080;
-            boolean higher = variant.getHeight() >= selected.getHeight();
-            boolean downgrade = selected.getHeight() > 1080;
-            if (fits && (selected.getHeight() <= 0 || downgrade || higher)) selected = variant;
+            boolean fits = variant.getHeight() <= 0 || variant.getHeight() <= 1080;
+            boolean selectedFits = selected.getHeight() <= 0 || selected.getHeight() <= 1080;
+            if (fits != selectedFits) {
+                if (fits) selected = variant;
+            } else if (variant.getHeight() > selected.getHeight()) {
+                selected = variant;
+            } else if (variant.getHeight() == selected.getHeight()
+                    && variant.getBandwidth() > selected.getBandwidth()) {
+                selected = variant;
+            }
         }
-        return selected;
+        if (selected != null) return selected;
+        return playlist.getVariants().isEmpty() ? null : playlist.getVariants().get(0);
+    }
+
+    private boolean hasVideo(HlsVariant variant) {
+        if (variant.getHeight() > 0) return true;
+        String codecs = variant.getCodecs();
+        if (codecs == null) return false;
+        String value = codecs.toLowerCase(Locale.US);
+        return value.contains("avc") || value.contains("hvc") || value.contains("hev")
+                || value.contains("av01") || value.contains("vp09") || value.contains("vp8")
+                || value.contains("mp4v");
     }
 }

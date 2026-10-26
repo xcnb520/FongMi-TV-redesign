@@ -25,6 +25,7 @@ import com.fongmi.player.core.PlayerCoreFactory;
 import com.fongmi.player.core.PlayerListener;
 import com.fongmi.player.core.ProgressiveSource;
 import com.fongmi.player.core.TrackInfo;
+import com.fongmi.player.core.TrackType;
 import com.fongmi.player.core.view.SurfacePlayerView;
 
 import java.util.ArrayDeque;
@@ -64,10 +65,21 @@ public final class MainActivity extends Activity {
     private final PlayerListener listener = new PlayerListener() {
         @Override
         public void onPrepared(TrackInfo[] tracks, long durationMs) {
-            status.setText("Ready · " + tracks.length + " tracks · " + durationMs / 1000L + "s");
+            boolean hasVideo = false;
+            String videoMime = null;
             StringBuilder detail = new StringBuilder("PREPARED durationMs=").append(durationMs);
-            for (TrackInfo track : tracks) detail.append(" [").append(track.getType()).append(' ').append(track.getMime()).append(']');
+            for (TrackInfo track : tracks) {
+                if (track.getType() == TrackType.VIDEO) {
+                    hasVideo = true;
+                    videoMime = track.getMime();
+                }
+                detail.append(" [").append(track.getType()).append(' ').append(track.getMime()).append(']');
+            }
+            status.setText(hasVideo
+                    ? "Ready · " + videoMime + " · " + durationMs / 1000L + "s"
+                    : "Audio only · no video track · " + durationMs / 1000L + "s");
             log(detail.toString());
+            log(hasVideo ? "VIDEO_TRACK_PRESENT " + videoMime : "NO_VIDEO_TRACK");
         }
 
         @Override
