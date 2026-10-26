@@ -32,6 +32,7 @@ public final class TouchInput extends BaseInput<TouchInput.Listener> implements 
     private final Runnable endScaleCooldown = () -> scaling = false;
     private ScrollAction scrollAction = ScrollAction.PENDING;
     private boolean scaling;
+    private boolean scaled;
     private boolean doubleTap;
     private boolean multiTouch;
     private boolean animating;
@@ -74,9 +75,10 @@ public final class TouchInput extends BaseInput<TouchInput.Listener> implements 
     public void resetScale() {
         App.removeCallbacks(endScaleCooldown);
         scaling = false;
+        scaled = false;
         pinchScale.reset();
         listener.onPinchScaleEnd();
-        if (!videoView.getVideoTransform().equals(VideoTransform.DEFAULT)) videoView.animateVideoTransform(VideoTransform.DEFAULT, 250);
+        videoView.setVideoTransform(new VideoTransform(1f, 1f, 0f, 0f));
     }
 
     public void setLock(boolean locked) {
@@ -85,7 +87,7 @@ public final class TouchInput extends BaseInput<TouchInput.Listener> implements 
     }
 
     public boolean isScaled() {
-        return !videoView.getVideoTransform().equals(VideoTransform.DEFAULT);
+        return scaled;
     }
 
     private boolean isMultiTouch(MotionEvent e) {
@@ -229,14 +231,12 @@ public final class TouchInput extends BaseInput<TouchInput.Listener> implements 
     public boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
         App.removeCallbacks(endScaleCooldown);
         if (!listener.isScaleEnabled() || hasScrollAction() || isSpeedPressActive() || locked || animating) return scaling = false;
-        videoView.finishVideoTransformAnimation();
-        VideoTransform transform = videoView.getVideoTransform();
-        pinchScale.setScale(transform.scaleX, transform.scaleY);
-        pinchContentBounds.set(videoView.getVideoBounds());
+        pinchScale.setScale(1f, 1f);
+        pinchContentBounds.set(0f, 0f, videoView.getWidth(), videoView.getHeight());
         pivotX = pinchContentBounds.centerX();
         pivotY = pinchContentBounds.centerY();
-        translationX = transform.panX * pinchContentBounds.width() * transform.scaleX;
-        translationY = transform.panY * pinchContentBounds.height() * transform.scaleY;
+        translationX = 0f;
+        translationY = 0f;
         setPinchPivot(detector);
         beginPinchScale(detector);
         return scaling = true;
@@ -285,7 +285,7 @@ public final class TouchInput extends BaseInput<TouchInput.Listener> implements 
             float releasedX = PinchScale.releaseTranslation(translationX, pinchContentBounds.left, pinchContentBounds.right, pivotX, pinchScale.getScaleX(), pinchScale.getVisualScaleX(), videoView.getWidth());
             float releasedY = PinchScale.releaseTranslation(translationY, pinchContentBounds.top, pinchContentBounds.bottom, pivotY, pinchScale.getScaleY(), pinchScale.getVisualScaleY(), videoView.getHeight());
             VideoTransform target = videoTransform(pinchScale.getScaleX(), pinchScale.getScaleY(), releasedX, releasedY);
-            if (!target.equals(videoView.getVideoTransform())) videoView.animateVideoTransform(target, 180);
+            videoView.setVideoTransform(target);
         }
         pinchScale.end();
         listener.onPinchScaleEnd();
@@ -304,6 +304,7 @@ public final class TouchInput extends BaseInput<TouchInput.Listener> implements 
         if (axis != PinchScale.Axis.VERTICAL && PinchScale.shouldConstrainTranslation(previousScaleX, previousVisualScaleX, pinchScale.getScaleX(), pinchScale.getVisualScaleX())) translationX = PinchScale.constrainTranslation(translationX, pinchContentBounds.left, pinchContentBounds.right, pivotX, pinchScale.getVisualScaleX(), videoView.getWidth());
         if (axis != PinchScale.Axis.HORIZONTAL && PinchScale.shouldConstrainTranslation(previousScaleY, previousVisualScaleY, pinchScale.getScaleY(), pinchScale.getVisualScaleY())) translationY = PinchScale.constrainTranslation(translationY, pinchContentBounds.top, pinchContentBounds.bottom, pivotY, pinchScale.getVisualScaleY(), videoView.getHeight());
         videoView.setVideoTransform(videoTransform(pinchScale.getVisualScaleX(), pinchScale.getVisualScaleY(), translationX, translationY));
+        scaled = true;
         listener.onPinchScale(axis, pinchScale.getScaleX(), pinchScale.getScaleY());
         return true;
     }

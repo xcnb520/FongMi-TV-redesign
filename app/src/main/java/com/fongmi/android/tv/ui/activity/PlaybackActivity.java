@@ -75,7 +75,7 @@ import java.util.function.Consumer;
 public abstract class PlaybackActivity extends BaseActivity implements MediaController.Listener, Player.Listener, ServiceConnection {
 
     private final DanmakuPlayerViewController danmakuController = new DanmakuPlayerViewController();
-    private final LiveDanmaku liveDanmaku = new LiveDanmaku(danmakuController::post, this::onDanmakuState);
+    private final LiveDanmaku liveDanmaku = new LiveDanmaku(danmaku -> {}, this::onDanmakuState);
     private final List<ServiceReadyObserver<?>> serviceReadyObservers = new ArrayList<>();
     private final MutableLiveData<PlayerManager> playbackPlayerState = new MutableLiveData<>(null);
     private final List<Runnable> foreverObserverRemovers = new ArrayList<>();
