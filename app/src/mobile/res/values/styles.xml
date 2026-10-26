@@ -197,7 +197,7 @@
         <item name="cornerSize">@dimen/mc_radius_md</item>
     </style>
 
-    <style name="McNavIndicator" parent="Widget.Material3.NavigationBarView.ActiveIndicator">
+    <style name="McNavIndicator" parent="">
         <item name="android:color">@color/mc_accent_soft</item>
     </style>
 
