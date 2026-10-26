@@ -2,14 +2,18 @@ package com.fongmi.player.core.render;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.view.Choreographer;
 
 import com.fongmi.player.core.clock.MasterClock;
+import com.fongmi.player.core.clock.SystemMasterClock;
 import com.fongmi.player.core.decode.VideoDecoder;
 
 import java.util.ArrayDeque;
 
 public final class VideoRenderer {
+
+    private static final String TAG = "PlayerCore";
 
     public interface Listener {
 
@@ -98,6 +102,11 @@ public final class VideoRenderer {
                 return;
             }
             long delayUs = frame.getPtsUs() - clock.positionUs();
+            if (!firstFrameRendered && clock instanceof SystemMasterClock && Math.abs(delayUs) > EARLY_THRESHOLD_US) {
+                ((SystemMasterClock) clock).syncTo(frame.getPtsUs());
+                delayUs = frame.getPtsUs() - clock.positionUs();
+                Log.i(TAG, "video clock synced to " + frame.getPtsUs());
+            }
             if (delayUs > EARLY_THRESHOLD_US) {
                 choreographer.postFrameCallback(this);
                 return;
@@ -110,6 +119,7 @@ public final class VideoRenderer {
             if (render) {
                 if (!firstFrameRendered) {
                     firstFrameRendered = true;
+                    Log.i(TAG, "FIRST_FRAME ptsUs=" + frame.getPtsUs());
                     listener.onFirstFrameRendered();
                 }
             } else {

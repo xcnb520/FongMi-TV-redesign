@@ -6,6 +6,7 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 
 import com.fongmi.player.core.PlaybackException;
 import com.fongmi.player.core.audio.AudioSink;
@@ -15,6 +16,8 @@ import com.fongmi.player.core.demux.SampleQueue;
 import java.nio.ByteBuffer;
 
 public final class AudioDecoder {
+
+    private static final String TAG = "PlayerCore";
 
     public interface Listener {
 
@@ -33,10 +36,13 @@ public final class AudioDecoder {
     private final HandlerThread thread = new HandlerThread("playback-audio");
     private MediaCodec codec;
     private Handler handler;
-    private AudioSink sink;
+    private volatile AudioSink sink;
     private volatile long basePtsUs = -1L;
     private volatile boolean eosQueued;
     private volatile boolean released;
+    private volatile boolean wantPlay;
+    private volatile float volume = 1f;
+    private volatile float speed = 1f;
 
     public AudioDecoder(MediaFormat format, SampleQueue queue, Listener listener) {
         this.format = format;
@@ -59,21 +65,25 @@ public final class AudioDecoder {
     }
 
     public void play() {
+        wantPlay = true;
         AudioSink target = sink;
         if (target != null) target.play();
     }
 
     public void pause() {
+        wantPlay = false;
         AudioSink target = sink;
         if (target != null) target.pause();
     }
 
     public void setVolume(float volume) {
+        this.volume = volume;
         AudioSink target = sink;
         if (target != null) target.setVolume(volume);
     }
 
     public void setSpeed(float speed) {
+        this.speed = speed;
         AudioSink target = sink;
         if (target != null) target.setSpeed(speed);
     }
@@ -123,9 +133,15 @@ public final class AudioDecoder {
         if (current != null && current.getSampleRate() == sampleRate && current.getChannels() == channels && current.getEncoding() == encoding) return;
         if (current != null) current.release();
         try {
-            sink = new AudioSink(sampleRate, channels, encoding);
+            AudioSink created = new AudioSink(sampleRate, channels, encoding);
+            created.setVolume(volume);
+            if (speed != 1f) created.setSpeed(speed);
+            sink = created;
+            if (wantPlay) created.play();
             listener.onAudioFormatChanged(sampleRate, channels, encoding);
+            Log.i(TAG, "audio sink " + sampleRate + "Hz/" + channels + "ch wantPlay=" + wantPlay);
         } catch (PlaybackException e) {
+            Log.e(TAG, "audio sink failed", e);
             listener.onError(e);
         }
     }
@@ -177,6 +193,7 @@ public final class AudioDecoder {
             if (basePtsUs < 0) {
                 basePtsUs = Math.max(0L, info.presentationTimeUs);
                 listener.onFirstPcm(basePtsUs);
+                Log.i(TAG, "first pcm ptsUs=" + basePtsUs);
             }
             AudioSink target = sink;
             if (target != null) target.write(output, info.size);
@@ -185,6 +202,7 @@ public final class AudioDecoder {
 
         @Override
         public void onError(MediaCodec mediaCodec, MediaCodec.CodecException e) {
+            Log.e(TAG, "audio codec error", e);
             listener.onError(new PlaybackException(PlaybackException.DECODE_FAILED, e.getMessage(), e));
         }
 
@@ -194,6 +212,7 @@ public final class AudioDecoder {
             int channels = outputFormat.containsKey(MediaFormat.KEY_CHANNEL_COUNT) ? outputFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT) : 2;
             int encoding = AudioFormat.ENCODING_PCM_16BIT;
             if (outputFormat.containsKey(MediaFormat.KEY_PCM_ENCODING)) encoding = outputFormat.getInteger(MediaFormat.KEY_PCM_ENCODING);
+            Log.i(TAG, "audio output format " + sampleRate + "Hz/" + channels + "ch enc=" + encoding);
             ensureSink(sampleRate, channels, encoding);
         }
     };

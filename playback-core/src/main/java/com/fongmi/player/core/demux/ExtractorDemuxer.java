@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.MediaDataSource;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.util.Log;
 
 import com.fongmi.player.core.PlaybackException;
 import com.fongmi.player.core.TrackInfo;
@@ -16,6 +17,8 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 public final class ExtractorDemuxer {
+
+    private static final String TAG = "PlayerCore";
 
     public interface Listener {
 
@@ -50,6 +53,8 @@ public final class ExtractorDemuxer {
     private volatile boolean released;
     private volatile boolean videoEnabled = true;
     private volatile boolean audioEnabled = true;
+    private boolean firstVideoSample;
+    private boolean firstAudioSample;
     private Thread thread;
 
     public ExtractorDemuxer(Context context, SourceHandle handle, SampleQueue videoQueue, SampleQueue audioQueue, Listener listener) {
@@ -96,6 +101,7 @@ public final class ExtractorDemuxer {
             }
             durationUs = Math.max(readDuration(videoFormat, audioFormat), handle.getDurationUs());
             tracks = buildTracks();
+            Log.i(TAG, "demuxer ready tracks=" + tracks.length + " durationUs=" + durationUs + " dual=" + dual);
         } catch (PlaybackException e) {
             release();
             throw e;
@@ -202,7 +208,10 @@ public final class ExtractorDemuxer {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (Exception e) {
-            if (!released) listener.onError(new PlaybackException(PlaybackException.DEMUX_FAILED, e.getMessage(), e));
+            if (!released) {
+                Log.e(TAG, "demux loop failed", e);
+                listener.onError(new PlaybackException(PlaybackException.DEMUX_FAILED, e.getMessage(), e));
+            }
         }
     }
 
@@ -244,7 +253,15 @@ public final class ExtractorDemuxer {
         }
         buffer.position(0);
         buffer.limit(read);
-        Sample sample = new Sample(buffer, extractor.getSampleTime(), extractor.getSampleFlags(), read, bufferPool);
+        long sampleTimeUs = extractor.getSampleTime();
+        if (video && !firstVideoSample) {
+            firstVideoSample = true;
+            Log.i(TAG, "first video sample ptsUs=" + sampleTimeUs + " size=" + read);
+        } else if (audio && !firstAudioSample) {
+            firstAudioSample = true;
+            Log.i(TAG, "first audio sample ptsUs=" + sampleTimeUs + " size=" + read);
+        }
+        Sample sample = new Sample(buffer, sampleTimeUs, extractor.getSampleFlags(), read, bufferPool);
         if (enabled) queue.put(sample);
         else sample.release();
         return true;
@@ -263,6 +280,7 @@ public final class ExtractorDemuxer {
         audioQueue.clear();
         videoQueue.reset();
         audioQueue.reset();
+        Log.i(TAG, "demuxer seek " + positionUs);
     }
 
     private void finish() {

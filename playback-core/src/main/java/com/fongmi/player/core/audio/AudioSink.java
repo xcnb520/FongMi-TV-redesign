@@ -6,12 +6,15 @@ import android.media.AudioTimestamp;
 import android.media.AudioTrack;
 import android.media.PlaybackParams;
 import android.os.Build;
+import android.util.Log;
 
 import com.fongmi.player.core.PlaybackException;
 
 import java.nio.ByteBuffer;
 
 public final class AudioSink {
+
+    private static final String TAG = "PlayerCore";
 
     private final int sampleRate;
     private final int channels;
@@ -45,10 +48,14 @@ public final class AudioSink {
             track.release();
             throw new PlaybackException(PlaybackException.AUDIO_INIT_FAILED, "AudioTrack init failed");
         }
+        Log.i(TAG, "AudioTrack " + sampleRate + "Hz/" + channels + "ch enc=" + encoding + " buf=" + bufferSize);
     }
 
     public void play() {
-        if (track.getPlayState() != AudioTrack.PLAYSTATE_PLAYING) track.play();
+        if (track.getPlayState() != AudioTrack.PLAYSTATE_PLAYING) {
+            track.play();
+            Log.i(TAG, "AudioTrack play");
+        }
     }
 
     public void pause() {
@@ -57,9 +64,9 @@ public final class AudioSink {
 
     public void write(ByteBuffer data, int size) {
         if (size <= 0) return;
-        data.position(0);
-        data.limit(size);
-        track.write(data, size, AudioTrack.WRITE_BLOCKING);
+        int length = Math.min(size, data.remaining());
+        if (length <= 0) return;
+        track.write(data, length, AudioTrack.WRITE_BLOCKING);
     }
 
     public void flush() {

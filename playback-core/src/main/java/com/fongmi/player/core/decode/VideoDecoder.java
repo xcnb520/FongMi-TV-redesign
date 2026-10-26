@@ -5,6 +5,7 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.view.Surface;
 
 import com.fongmi.player.core.PlaybackException;
@@ -16,6 +17,8 @@ import com.fongmi.player.core.render.VideoRenderer;
 import java.nio.ByteBuffer;
 
 public final class VideoDecoder {
+
+    private static final String TAG = "PlayerCore";
 
     public interface Listener {
 
@@ -35,6 +38,8 @@ public final class VideoDecoder {
     private Handler handler;
     private VideoRenderer renderer;
     private volatile boolean eosQueued;
+    private boolean firstInput;
+    private boolean firstOutput;
 
     public VideoDecoder(MediaFormat format, Surface surface, SampleQueue queue, Listener listener) {
         this.format = format;
@@ -56,6 +61,7 @@ public final class VideoDecoder {
             codec.configure(format, surface, null, 0);
             codec.setCallback(callback, handler);
             codec.start();
+            Log.i(TAG, "video decoder " + mime);
         } catch (Exception e) {
             throw new PlaybackException(PlaybackException.DECODER_INIT_FAILED, e.getMessage(), e);
         }
@@ -114,6 +120,10 @@ public final class VideoDecoder {
                 input.clear();
                 input.put(sample.getData());
                 int flags = (sample.getFlags() & MediaExtractor.SAMPLE_FLAG_SYNC) != 0 ? MediaCodec.BUFFER_FLAG_KEY_FRAME : 0;
+                if (!firstInput) {
+                    firstInput = true;
+                    Log.i(TAG, "first video sample ptsUs=" + sample.getPtsUs() + " size=" + sample.getSize());
+                }
                 mediaCodec.queueInputBuffer(index, 0, sample.getSize(), sample.getPtsUs(), flags);
                 sample.release();
             } catch (InterruptedException e) {
@@ -125,6 +135,10 @@ public final class VideoDecoder {
 
         @Override
         public void onOutputBufferAvailable(MediaCodec mediaCodec, int index, MediaCodec.BufferInfo info) {
+            if (!firstOutput && info.size > 0) {
+                firstOutput = true;
+                Log.i(TAG, "first video output ptsUs=" + info.presentationTimeUs + " size=" + info.size);
+            }
             if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) listener.onEndOfStream();
             if (info.size <= 0) {
                 mediaCodec.releaseOutputBuffer(index, false);
@@ -140,6 +154,7 @@ public final class VideoDecoder {
 
         @Override
         public void onError(MediaCodec mediaCodec, MediaCodec.CodecException e) {
+            Log.e(TAG, "video codec error", e);
             listener.onError(new PlaybackException(PlaybackException.DECODE_FAILED, e.getMessage(), e));
         }
 
@@ -155,6 +170,7 @@ public final class VideoDecoder {
                     frameRate = outputFormat.getInteger(MediaFormat.KEY_FRAME_RATE);
                 }
             }
+            Log.i(TAG, "video output format " + width + "x" + height + " fps=" + frameRate);
             listener.onVideoSizeChanged(width, height, frameRate);
         }
     };

@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.Surface;
 
 import com.fongmi.player.core.audio.AudioClock;
@@ -26,6 +27,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class NativePlayerCore implements PlayerCore {
+
+    private static final String TAG = "PlayerCore";
 
     private final Context context;
     private final CopyOnWriteArrayList<PlayerListener> listeners = new CopyOnWriteArrayList<>();
@@ -89,6 +92,7 @@ public final class NativePlayerCore implements PlayerCore {
         if (source == null) return;
         releasePipeline();
         state = PlayerState.PREPARING;
+        Log.i(TAG, "prepare surface=" + (surface != null));
         try {
             videoQueue = new SampleQueue(48);
             audioQueue = new SampleQueue(96);
@@ -100,12 +104,17 @@ public final class NativePlayerCore implements PlayerCore {
             durationUs = demuxer.getDurationUs();
             videoFormat = demuxer.getVideoFormat();
             MediaFormat audioFormat = demuxer.getAudioFormat();
+            Log.i(TAG, "tracks=" + tracks.length + " durationUs=" + durationUs
+                    + " video=" + (videoFormat == null ? "no" : videoFormat.getString(MediaFormat.KEY_MIME))
+                    + " audio=" + (audioFormat == null ? "no" : audioFormat.getString(MediaFormat.KEY_MIME)));
             demuxer.setVideoEnabled(surface != null && videoFormat != null);
             demuxer.setAudioEnabled(audioFormat != null);
             if (audioFormat != null) {
                 audioDecoder = new AudioDecoder(audioFormat, audioQueue, audioListener);
                 try {
                     audioDecoder.start();
+                    audioDecoder.setVolume(volume);
+                    audioDecoder.setSpeed(speed);
                     audioClock = new AudioClock(audioDecoder);
                     clock = audioClock;
                 } catch (PlaybackException e) {
@@ -191,6 +200,7 @@ public final class NativePlayerCore implements PlayerCore {
     public void setSurface(Surface surface) {
         post(() -> {
             this.surface = surface;
+            Log.i(TAG, "setSurface " + (surface != null));
             if (!prepared) return;
             try {
                 if (surface == null) releaseVideoPipeline();
@@ -322,6 +332,7 @@ public final class NativePlayerCore implements PlayerCore {
         videoDecoder.setRenderer(videoRenderer);
         videoDecoder.start();
         videoRenderer.start();
+        Log.i(TAG, "video pipeline started");
         videoRenderer.setPlaying(state == PlayerState.PLAYING);
         if (demuxer != null) demuxer.setVideoEnabled(true);
     }
@@ -368,6 +379,7 @@ public final class NativePlayerCore implements PlayerCore {
     }
 
     private void playInternal() {
+        Log.i(TAG, "playInternal");
         if (videoRenderer != null) videoRenderer.setPlaying(true);
         if (audioDecoder != null) audioDecoder.play();
         if (systemClock != null) systemClock.start();
@@ -439,6 +451,7 @@ public final class NativePlayerCore implements PlayerCore {
     };
 
     private void fail(PlaybackException error) {
+        Log.e(TAG, "playback failed " + error.getCode() + ": " + error.getMessage(), error);
         state = PlayerState.ERROR;
         notifyError(error);
     }
@@ -527,6 +540,7 @@ public final class NativePlayerCore implements PlayerCore {
     }
 
     private void notifyFirstFrame() {
+        Log.i(TAG, "FIRST_FRAME notify");
         mainHandler.post(() -> {
             for (PlayerListener listener : listeners) listener.onFirstFrameRendered();
         });

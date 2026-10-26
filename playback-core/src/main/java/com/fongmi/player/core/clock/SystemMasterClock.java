@@ -23,6 +23,11 @@ public final class SystemMasterClock implements MasterClock {
         startNanos = System.nanoTime();
     }
 
+    public synchronized void syncTo(long positionUs) {
+        baseUs = Math.max(0L, positionUs);
+        startNanos = System.nanoTime();
+    }
+
     @Override
     public synchronized long positionUs() {
         return baseUs + (running ? (System.nanoTime() - startNanos) / 1000L : 0L);
