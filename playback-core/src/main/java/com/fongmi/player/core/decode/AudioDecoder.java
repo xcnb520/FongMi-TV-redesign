@@ -172,12 +172,13 @@ public final class AudioDecoder {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
-                listener.onError(new PlaybackException(PlaybackException.DECODE_FAILED, e.getMessage(), e));
+                if (!released) listener.onError(new PlaybackException(PlaybackException.DECODE_FAILED, e.getMessage(), e));
             }
         }
 
         @Override
         public void onOutputBufferAvailable(MediaCodec mediaCodec, int index, MediaCodec.BufferInfo info) {
+            if (released) return;
             if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) listener.onEndOfStream();
             if (info.size <= 0) {
                 mediaCodec.releaseOutputBuffer(index, false);
@@ -202,6 +203,7 @@ public final class AudioDecoder {
 
         @Override
         public void onError(MediaCodec mediaCodec, MediaCodec.CodecException e) {
+            if (released) return;
             Log.e(TAG, "audio codec error", e);
             listener.onError(new PlaybackException(PlaybackException.DECODE_FAILED, e.getMessage(), e));
         }

@@ -142,18 +142,23 @@ public final class MainActivity extends Activity {
 
         time = new TextView(this);
         time.setTextColor(Color.WHITE);
+        time.setSingleLine(true);
         time.setText("00:00 / 00:00");
         root.addView(time, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         status = new TextView(this);
         status.setTextColor(Color.LTGRAY);
+        status.setSingleLine(true);
+        status.setEllipsize(TextUtils.TruncateAt.END);
         status.setText("Enter a URL and press Load");
         root.addView(status, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         logView = new TextView(this);
         logView.setTextColor(Color.GRAY);
         logView.setTextSize(10f);
-        root.addView(logView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        logView.setMaxLines(8);
+        logView.setVerticalScrollBarEnabled(true);
+        root.addView(logView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(110)));
 
         setContentView(root);
 

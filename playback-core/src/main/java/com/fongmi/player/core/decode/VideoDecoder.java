@@ -38,6 +38,7 @@ public final class VideoDecoder {
     private Handler handler;
     private VideoRenderer renderer;
     private volatile boolean eosQueued;
+    private volatile boolean released;
     private boolean firstInput;
     private boolean firstOutput;
 
@@ -76,7 +77,7 @@ public final class VideoDecoder {
     }
 
     public void flush() {
-        if (codec == null) return;
+        if (codec == null || released) return;
         eosQueued = false;
         try {
             codec.flush();
@@ -85,6 +86,7 @@ public final class VideoDecoder {
     }
 
     public void release() {
+        released = true;
         if (codec != null) {
             try {
                 codec.stop();
@@ -102,7 +104,7 @@ public final class VideoDecoder {
     private final MediaCodec.Callback callback = new MediaCodec.Callback() {
         @Override
         public void onInputBufferAvailable(MediaCodec mediaCodec, int index) {
-            if (eosQueued) return;
+            if (eosQueued || released) return;
             try {
                 Sample sample = queue.take();
                 if (sample == null) {
@@ -129,24 +131,31 @@ public final class VideoDecoder {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
-                listener.onError(new PlaybackException(PlaybackException.DECODE_FAILED, e.getMessage(), e));
+                if (!released) listener.onError(new PlaybackException(PlaybackException.DECODE_FAILED, e.getMessage(), e));
             }
         }
 
         @Override
         public void onOutputBufferAvailable(MediaCodec mediaCodec, int index, MediaCodec.BufferInfo info) {
+            if (released) return;
             if (!firstOutput && info.size > 0) {
                 firstOutput = true;
                 Log.i(TAG, "first video output ptsUs=" + info.presentationTimeUs + " size=" + info.size);
             }
             if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) listener.onEndOfStream();
             if (info.size <= 0) {
-                mediaCodec.releaseOutputBuffer(index, false);
+                try {
+                    mediaCodec.releaseOutputBuffer(index, false);
+                } catch (Exception ignored) {
+                }
                 return;
             }
             VideoRenderer target = renderer;
             if (target == null) {
-                mediaCodec.releaseOutputBuffer(index, false);
+                try {
+                    mediaCodec.releaseOutputBuffer(index, false);
+                } catch (Exception ignored) {
+                }
                 return;
             }
             target.enqueue(new DecodedFrame(index, info.presentationTimeUs, info.size));
@@ -154,12 +163,14 @@ public final class VideoDecoder {
 
         @Override
         public void onError(MediaCodec mediaCodec, MediaCodec.CodecException e) {
+            if (released) return;
             Log.e(TAG, "video codec error", e);
             listener.onError(new PlaybackException(PlaybackException.DECODE_FAILED, e.getMessage(), e));
         }
 
         @Override
         public void onOutputFormatChanged(MediaCodec mediaCodec, MediaFormat outputFormat) {
+            if (released) return;
             int width = outputFormat.containsKey(MediaFormat.KEY_WIDTH) ? outputFormat.getInteger(MediaFormat.KEY_WIDTH) : 0;
             int height = outputFormat.containsKey(MediaFormat.KEY_HEIGHT) ? outputFormat.getInteger(MediaFormat.KEY_HEIGHT) : 0;
             float frameRate = 0f;

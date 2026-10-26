@@ -39,7 +39,6 @@ public final class SurfacePlayerView extends SurfaceView implements SurfaceHolde
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        if (player != null) player.setSurface(holder.getSurface());
     }
 
     @Override

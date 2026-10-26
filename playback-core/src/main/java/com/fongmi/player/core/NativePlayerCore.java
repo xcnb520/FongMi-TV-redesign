@@ -199,6 +199,15 @@ public final class NativePlayerCore implements PlayerCore {
     @Override
     public void setSurface(Surface surface) {
         post(() -> {
+            Surface previous = this.surface;
+            if (previous == surface) {
+                return;
+            }
+            if (previous != null && surface != null && videoDecoder != null) {
+                this.surface = surface;
+                Log.i(TAG, "setSurface changed while pipeline active");
+                return;
+            }
             this.surface = surface;
             Log.i(TAG, "setSurface " + (surface != null));
             if (!prepared) return;
@@ -351,6 +360,9 @@ public final class NativePlayerCore implements PlayerCore {
 
     private void releasePipeline() {
         cancelAbr();
+        if (demuxer != null) demuxer.pause();
+        if (videoQueue != null) videoQueue.release();
+        if (audioQueue != null) audioQueue.release();
         releaseVideoPipeline();
         if (audioDecoder != null) {
             audioDecoder.release();
@@ -360,14 +372,8 @@ public final class NativePlayerCore implements PlayerCore {
             demuxer.release();
             demuxer = null;
         }
-        if (videoQueue != null) {
-            videoQueue.release();
-            videoQueue = null;
-        }
-        if (audioQueue != null) {
-            audioQueue.release();
-            audioQueue = null;
-        }
+        videoQueue = null;
+        audioQueue = null;
         currentHandle = null;
         audioClock = null;
         systemClock = null;
@@ -451,6 +457,7 @@ public final class NativePlayerCore implements PlayerCore {
     };
 
     private void fail(PlaybackException error) {
+        if (state == PlayerState.ERROR) return;
         Log.e(TAG, "playback failed " + error.getCode() + ": " + error.getMessage(), error);
         state = PlayerState.ERROR;
         notifyError(error);
