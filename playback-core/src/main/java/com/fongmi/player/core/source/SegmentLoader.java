@@ -53,8 +53,6 @@ public final class SegmentLoader {
             } finally {
                 connection.disconnect();
             }
-        } catch (PlaybackException e) {
-            throw e;
         } catch (Exception e) {
             throw new PlaybackException(PlaybackException.NETWORK_FAILED, e.getMessage(), e);
         }
