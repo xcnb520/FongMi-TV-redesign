@@ -178,11 +178,12 @@ public final class ExtractorDemuxer {
                     finish();
                     return;
                 }
-                int size = extractor.getSampleSize();
-                if (size <= 0) {
+                long sampleSize = extractor.getSampleSize();
+                if (sampleSize <= 0L || sampleSize > Integer.MAX_VALUE) {
                     finish();
                     return;
                 }
+                int size = (int) sampleSize;
                 ByteBuffer buffer = bufferPool.acquire(size);
                 int read = extractor.readSampleData(buffer, 0);
                 if (read < 0) {

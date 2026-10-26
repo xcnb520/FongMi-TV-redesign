@@ -88,9 +88,7 @@ public final class AudioSink {
         } catch (Exception ignored) {
         }
         long frames = track.getPlaybackHeadPosition() & 0xFFFFFFFFL;
-        long positionUs = frames * 1_000_000L / sampleRate;
-        int latencyMs = track.getLatency();
-        return Math.max(0L, positionUs - Math.max(0, latencyMs) * 1000L);
+        return frames * 1_000_000L / sampleRate;
     }
 
     public int getSampleRate() {
