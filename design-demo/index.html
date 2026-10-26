@@ -1,0 +1,1176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>影視TV · 全新 UI 设计演示</title>
+<style>
+  :root{
+    --bg:#08080C;
+    --bg-soft:#0C0C12;
+    --surface:#14141D;
+    --surface-2:#1B1B26;
+    --surface-3:#23232F;
+    --line:rgba(255,255,255,.07);
+    --line-strong:rgba(255,255,255,.12);
+    --tint-1:rgba(255,255,255,.035);
+    --tint-2:rgba(255,255,255,.06);
+    --tint-3:rgba(255,255,255,.10);
+    --tint-4:rgba(255,255,255,.14);
+    --dock-bg:rgba(18,18,26,.72);
+    --text:#F4F4F8;
+    --text-2:#9C9CB0;
+    --text-3:#63637A;
+    --accent:#FFB23F;
+    --accent-hi:#FFD27A;
+    --accent-lo:#FF7A3D;
+    --live:#FF4D6D;
+    --blue:#6C9BFF;
+    --ok:#3BD6A0;
+    --danger:#FF5C5C;
+    --radius-xl:26px;
+    --radius-lg:20px;
+    --radius-md:16px;
+    --radius-sm:12px;
+    --shadow:0 18px 50px rgba(0,0,0,.55);
+    --font:"Inter","SF Pro Display","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--font);
+    color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 15% -10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%),
+      radial-gradient(900px 500px at 90% 0%, rgba(108,155,255,.10), transparent 55%),
+      radial-gradient(800px 800px at 50% 110%, rgba(255,178,63,.06), transparent 60%),
+      var(--bg);
+    min-height:100vh;
+    padding:48px 28px 80px;
+  }
+  .sprite{position:absolute;width:0;height:0;overflow:hidden}
+  .icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .icon.sm{width:16px;height:16px}
+  .icon.lg{width:24px;height:24px}
+
+  /* ---------- showcase head ---------- */
+  .showcase{max-width:1560px;margin:0 auto}
+  .topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:34px}
+  .brandline{display:flex;align-items:center;gap:14px}
+  .brandmark{width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,var(--accent-hi),var(--accent-lo));display:grid;place-items:center;color:#1a1206;font-weight:900;font-size:18px;box-shadow:0 10px 30px rgba(255,138,61,.35)}
+  h1{font-size:30px;line-height:1.1;margin:0;letter-spacing:-.02em;font-weight:800}
+  h1 span{background:linear-gradient(90deg,var(--accent-hi),var(--accent-lo));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--text-2);font-size:14px;margin-top:8px}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--tint-1);color:var(--text-2);font-size:12.5px}
+  .badge b{color:var(--accent);font-weight:700}
+
+  /* ---------- live theme controls ---------- */
+  .theme-dock{
+    display:flex;flex-wrap:wrap;gap:22px;align-items:center;justify-content:space-between;
+    border:1px solid var(--line);border-radius:20px;padding:15px 20px;margin-bottom:38px;
+    background:linear-gradient(180deg,var(--tint-1),transparent);
+    position:sticky;top:14px;z-index:50;backdrop-filter:blur(18px) saturate(150%);
+  }
+  .tc-group{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .tc-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3)}
+  .tc-swatches{display:flex;gap:9px}
+  .swbtn{width:30px;height:30px;border-radius:10px;border:1px solid var(--line-strong);cursor:pointer;padding:0;position:relative;transition:.16s}
+  .swbtn:hover{transform:translateY(-2px)}
+  .swbtn.on{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--text)}
+  .swbtn.on::after{content:"";position:absolute;inset:0;border-radius:10px;border:2px solid rgba(0,0,0,.3)}
+  .bgbtn{padding:7px 13px;border-radius:9px;border:1px solid var(--line);background:var(--tint-1);color:var(--text-2);font-size:11.5px;font-family:inherit;cursor:pointer}
+  .bgbtn.on{border-color:var(--line-strong);color:var(--text);background:var(--tint-3)}
+  .tc-note{font-size:11.5px;color:var(--text-3)}
+
+  /* ---------- token strip ---------- */
+  .tokens{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:48px}
+  .tok{border:1px solid var(--line);border-radius:16px;padding:14px 15px;background:linear-gradient(180deg,var(--tint-1),transparent)}
+  .tok .sw{width:100%;height:38px;border-radius:10px;margin-bottom:11px;border:1px solid var(--line-strong)}
+  .tok .nm{font-size:12px;color:var(--text-2);display:flex;justify-content:space-between;gap:8px}
+  .tok .nm code{color:var(--text-3);font-size:11px}
+
+  /* ---------- device grid ---------- */
+  .screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(390px,1fr));gap:52px 34px;justify-items:center}
+  .device-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
+  .device{
+    width:390px;height:844px;border-radius:50px;padding:11px;position:relative;
+    background:linear-gradient(160deg,#33333f 0%,#17171e 30%,#0b0b10 100%);
+    box-shadow:var(--shadow),inset 0 0 0 1px rgba(255,255,255,.10);
+  }
+  .device::after{content:"";position:absolute;inset:5px;border-radius:46px;border:1px solid rgba(0,0,0,.65);pointer-events:none}
+  .screen{position:relative;width:100%;height:100%;border-radius:40px;overflow:hidden;background:var(--bg);isolation:isolate}
+  .screen::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 60% at 50% -10%,color-mix(in srgb,var(--accent) 11%,transparent),transparent 60%);pointer-events:none;z-index:0}
+  .cap{font-size:13px;color:var(--text-2);letter-spacing:.06em;text-transform:uppercase}
+  .cap b{color:var(--text);font-weight:700}
+
+  .statusbar{position:relative;z-index:5;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:12.5px;font-weight:600;color:var(--text)}
+  .statusbar .right{display:flex;align-items:center;gap:5px;color:var(--text)}
+  .notch{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:118px;height:28px;border-radius:16px;background:#000;z-index:6;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+  .homebar{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:132px;height:5px;border-radius:99px;background:color-mix(in srgb,var(--text) 36%,transparent);z-index:8;pointer-events:none}
+
+  .scroll{position:relative;z-index:1;height:calc(100% - 46px);overflow-y:auto;overflow-x:hidden;padding:0 18px 118px;scrollbar-width:none}
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* ---------- typography ---------- */
+  .eyebrow{font-size:12.5px;color:var(--text-2);letter-spacing:.02em}
+  .brand{font-size:27px;font-weight:800;letter-spacing:-.02em;margin-top:3px}
+  .brand i{font-style:normal;background:linear-gradient(90deg,var(--accent-hi),var(--accent-lo));-webkit-background-clip:text;background-clip:text;color:transparent}
+  h3{margin:0;font-size:17px;font-weight:750;letter-spacing:-.01em}
+  .muted{color:var(--text-2)}
+  .tiny{font-size:11.5px;color:var(--text-2)}
+
+  /* top header */
+  .home-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 16px}
+  .avatar{width:42px;height:42px;border-radius:14px;border:1px solid var(--line-strong);background:linear-gradient(145deg,#2b2b3a,#191922);display:grid;place-items:center;color:var(--accent);font-weight:800;font-size:15px;position:relative}
+  .avatar::after{content:"";position:absolute;right:-2px;bottom:-2px;width:11px;height:11px;border-radius:50%;background:var(--ok);border:2px solid var(--bg)}
+
+  /* search */
+  .search-pill{width:100%;display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:15px;border:1px solid var(--line);background:linear-gradient(180deg,var(--tint-1),transparent);color:var(--text-3);font-size:13.5px;font-family:inherit;cursor:pointer}
+  .search-pill .icon{color:var(--text-3)}
+  .search-pill .kbd{margin-left:auto;font-size:11px;padding:3px 7px;border-radius:7px;border:1px solid var(--line-strong);color:var(--text-3)}
+
+  /* chips */
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:16px 0 4px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;padding:9px 15px;border-radius:999px;font-size:13px;color:var(--text-2);border:1px solid var(--line);background:var(--tint-1);white-space:nowrap;cursor:pointer;transition:.18s}
+  .chip.active{color:#1a1206;background:linear-gradient(135deg,var(--accent-hi),var(--accent));border-color:transparent;font-weight:700;box-shadow:0 8px 22px rgba(255,178,63,.25)}
+  .chip.ghost{padding:7px 12px;font-size:12px}
+
+  /* hero */
+  .hero{margin-top:18px;border-radius:24px;overflow:hidden;border:1px solid var(--line);background:var(--surface);box-shadow:0 24px 60px rgba(0,0,0,.45);position:relative}
+  .hero-art{position:relative;height:210px;background:linear-gradient(120deg,#2c1a12 0%,#3a1f13 32%,#120b09 100%)}
+  .hero-art::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(220px 180px at 74% 30%,rgba(255,170,80,.55),transparent 62%),
+    radial-gradient(180px 140px at 20% 80%,rgba(255,90,40,.35),transparent 65%)}
+  .hero-art::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,var(--surface) 2%,rgba(20,20,29,.2) 45%,transparent 75%)}
+  .hero-art .grain{position:absolute;inset:0;opacity:.5;background-image:repeating-linear-gradient(125deg,rgba(255,255,255,.035) 0 1px,transparent 1px 9px)}
+  .hero-art .glyph{position:absolute;right:26px;top:26px;font-size:74px;font-weight:900;letter-spacing:-.06em;color:rgba(255,255,255,.10);line-height:1}
+  .hot{position:absolute;left:16px;top:16px;display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(8px);font-size:11.5px;font-weight:650;color:#ffe9c6}
+  .hot .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+  .hero-body{padding:2px 18px 18px;position:relative;z-index:2;margin-top:-16px}
+  .hero-title{font-size:23px;font-weight:800;letter-spacing:-.02em}
+  .hero-meta{font-size:12.5px;color:var(--text-2);margin-top:7px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .dotsep{width:3px;height:3px;border-radius:50%;background:var(--text-3)}
+  .hero-actions{display:flex;gap:10px;margin-top:16px}
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;font-family:inherit;font-weight:700;font-size:14px;border-radius:13px;padding:12px 18px;cursor:pointer;transition:.18s;color:var(--text)}
+  .btn-primary{background:linear-gradient(135deg,var(--accent-hi),var(--accent) 55%,var(--accent-lo));color:#1a1206;box-shadow:0 12px 28px rgba(255,170,63,.28)}
+  .btn-primary:active{transform:translateY(1px)}
+  .btn-secondary{background:var(--tint-2);border:1px solid var(--line-strong);color:var(--text)}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text-2)}
+  .btn-icon{width:44px;height:44px;padding:0;border-radius:13px;background:var(--tint-2);border:1px solid var(--line-strong);color:var(--text)}
+  .btn-block{width:100%}
+  .btn-danger{background:rgba(255,92,92,.12);border:1px solid rgba(255,92,92,.35);color:#ff9a9a}
+
+  /* section head */
+  .section-head{display:flex;align-items:center;justify-content:space-between;margin:26px 0 13px}
+  .section-head .more{font-size:12.5px;color:var(--text-2);display:flex;align-items:center;gap:3px}
+  .section-head .more .icon{width:14px;height:14px}
+
+  /* continue watching */
+  .row-cards{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin:0 -18px;padding-left:18px;padding-right:18px}
+  .row-cards::-webkit-scrollbar{display:none}
+  .cw{flex:none;width:214px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surface);position:relative}
+  .cw .art{height:112px;position:relative;background:linear-gradient(130deg,#13283a,#0a1219)}
+  .cw .art::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,16,.9),transparent 65%)}
+  .cw .art .t{position:absolute;left:12px;bottom:9px;font-size:13.5px;font-weight:700;z-index:2;color:#fff}
+  .cw .play{position:absolute;right:10px;bottom:8px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.25);display:grid;place-items:center;z-index:3}
+  .cw .play .icon{width:13px;height:13px;margin-left:2px}
+  .cw .bar{padding:9px 12px 11px}
+  .cw .bar .meta{display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-3);margin-bottom:7px}
+  .cw .track{height:3px;border-radius:99px;background:var(--tint-3);overflow:hidden}
+  .cw .track i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent-hi),var(--accent-lo))}
+
+  /* poster grid */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .poster{border-radius:15px;overflow:hidden;border:1px solid var(--line);background:var(--surface);position:relative}
+  .poster .art{aspect-ratio:2/3;position:relative;overflow:hidden}
+  .poster .art::before{content:"";position:absolute;inset:0;opacity:.9}
+  .poster .art::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(5,5,9,.9) 0%,rgba(5,5,9,.15) 45%,transparent 70%)}
+  .poster .glyph{position:absolute;right:8px;bottom:34px;font-size:30px;font-weight:900;color:rgba(255,255,255,.16);letter-spacing:-.05em}
+  .poster .rate{position:absolute;left:8px;top:8px;display:flex;align-items:center;gap:3px;padding:3px 7px;border-radius:8px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.12);font-size:10.5px;font-weight:700;color:var(--accent-hi);backdrop-filter:blur(6px);z-index:2}
+  .poster .rate .icon{width:10px;height:10px;fill:currentColor;stroke:none}
+  .poster .pmeta{position:absolute;left:9px;right:9px;bottom:8px;z-index:2}
+  .poster .pname{font-size:12px;font-weight:650;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .poster .pyear{font-size:10px;color:rgba(255,255,255,.7);margin-top:2px}
+
+  .p1 .art::before{background:radial-gradient(120px 160px at 70% 20%,#ffb46a,transparent 65%),linear-gradient(150deg,#3a2012,#140b08)}
+  .p2 .art::before{background:radial-gradient(120px 160px at 30% 25%,#5fa8ff,transparent 65%),linear-gradient(150deg,#12243c,#070d16)}
+  .p3 .art::before{background:radial-gradient(120px 160px at 65% 70%,#ff6b7d,transparent 65%),linear-gradient(150deg,#3a1620,#12070a)}
+  .p4 .art::before{background:radial-gradient(120px 160px at 40% 30%,#5fe0b0,transparent 65%),linear-gradient(150deg,#102a20,#06100c)}
+  .p5 .art::before{background:radial-gradient(120px 160px at 60% 25%,#c79bff,transparent 65%),linear-gradient(150deg,#241638,#0b0712)}
+  .p6 .art::before{background:radial-gradient(120px 160px at 35% 65%,#ffd166,transparent 65%),linear-gradient(150deg,#2c2410,#100d06)}
+
+  /* dock */
+  .dock{position:absolute;left:16px;right:16px;bottom:18px;z-index:9;height:66px;border-radius:22px;display:flex;align-items:center;justify-content:space-around;background:var(--dock-bg);border:1px solid var(--line-strong);backdrop-filter:blur(22px) saturate(160%);box-shadow:0 18px 44px rgba(0,0,0,.5)}
+  .dock .di{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--text-3);font-size:9.5px;font-weight:600;padding:5px 16px;border-radius:14px;cursor:pointer;transition:.18s}
+  .dock .di .icon{width:21px;height:21px}
+  .dock .di.on{color:var(--accent)}
+  .dock .di.on .icon{filter:drop-shadow(0 0 8px rgba(255,178,63,.5))}
+  .dock .di.on::after{content:"";width:4px;height:4px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);margin-top:1px}
+
+  /* ---------- type screen ---------- */
+  .page-head{display:flex;align-items:center;gap:12px;padding:10px 0 14px}
+  .round-btn{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--tint-2);border:1px solid var(--line);color:var(--text);flex:none;cursor:pointer}
+  .page-title{font-size:18px;font-weight:750;flex:1;text-align:center}
+  .filter-group{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+  .filter-line{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;align-items:center}
+  .filter-line::-webkit-scrollbar{display:none}
+  .filter-label{flex:none;font-size:12px;color:var(--text-3);width:34px}
+  .sortbar{display:flex;align-items:center;justify-content:space-between;margin:20px 0 12px}
+  .sortbar .tabs{display:flex;gap:18px;font-size:13px;color:var(--text-2)}
+  .sortbar .tabs b{color:var(--text);position:relative}
+  .sortbar .tabs b::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--accent-hi),var(--accent-lo))}
+  .count{font-size:11.5px;color:var(--text-3)}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .big-card{border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--surface);position:relative}
+  .big-card .art{aspect-ratio:16/10;position:relative;overflow:hidden}
+  .big-card .art::before{content:"";position:absolute;inset:0}
+  .big-card .art::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,12,.85),transparent 60%)}
+  .big-card .glyph{position:absolute;left:12px;bottom:10px;font-size:26px;font-weight:900;color:rgba(255,255,255,.22);letter-spacing:-.05em;z-index:2}
+  .big-card .tag{position:absolute;right:9px;top:9px;padding:4px 8px;border-radius:8px;font-size:10px;font-weight:700;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.14);color:var(--accent-hi);z-index:2}
+  .big-card .b{position:absolute;left:10px;bottom:8px;z-index:2;font-size:11px;color:rgba(255,255,255,.75)}
+  .big-card .info{padding:11px 12px 13px}
+  .big-card .n{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .big-card .m{font-size:11px;color:var(--text-3);margin-top:4px;display:flex;align-items:center;gap:6px}
+  .site-dot{width:5px;height:5px;border-radius:50%;background:var(--blue)}
+
+  /* ---------- detail ---------- */
+  .detail-hero{position:relative;height:250px;margin:0 -18px;padding:0 18px;overflow:hidden}
+  .detail-hero .bg{position:absolute;inset:0;background:radial-gradient(220px 200px at 78% 20%,rgba(255,170,80,.5),transparent 62%),linear-gradient(160deg,#331c11,#120a08 70%)}
+  .detail-hero .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 3%,rgba(8,8,12,.35) 55%,transparent 85%)}
+  .detail-top{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;padding-top:8px}
+  .detail-main{position:relative;z-index:3;display:flex;gap:15px;margin-top:120px;padding:0 2px}
+  .detail-poster{width:104px;height:152px;border-radius:14px;background:linear-gradient(150deg,#40230f,#170c07);border:1px solid rgba(255,255,255,.16);box-shadow:0 18px 40px rgba(0,0,0,.55);position:relative;overflow:hidden;flex:none}
+  .detail-poster::after{content:"DUNE";position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:15px;font-weight:900;letter-spacing:.08em;color:rgba(255,255,255,.55)}
+  .detail-info{flex:1;min-width:0;padding-top:10px}
+  .detail-info .dt{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.15;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.45)}
+  .detail-info .dm{font-size:11.5px;color:rgba(255,255,255,.72);margin-top:8px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+  .pill-tag{padding:3px 8px;border-radius:7px;background:var(--tint-2);border:1px solid var(--line);font-size:10.5px;color:var(--text-2)}
+  .detail-main .pill-tag{color:rgba(255,255,255,.82);background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.18)}
+  .pill-tag.hot{background:rgba(255,178,63,.12);border-color:rgba(255,178,63,.3);color:var(--accent-hi)}
+  .stars{display:flex;align-items:center;gap:4px;margin-top:9px;color:var(--accent)}
+  .stars .icon{width:13px;height:13px;fill:currentColor;stroke:none}
+  .stars span{font-size:11.5px;color:rgba(255,255,255,.7);margin-left:4px}
+  .action-row{display:flex;gap:10px;margin-top:20px}
+  .action-row .btn-primary{flex:1}
+  .action-row .btn-icon{width:46px;height:46px}
+  .site-card{margin-top:18px;border-radius:16px;border:1px solid var(--line);background:var(--surface);padding:13px 14px;display:flex;align-items:center;gap:12px}
+  .site-card .ic{width:34px;height:34px;border-radius:10px;background:rgba(108,155,255,.12);border:1px solid rgba(108,155,255,.3);display:grid;place-items:center;color:var(--blue)}
+  .site-card .txt{flex:1;min-width:0}
+  .site-card .txt b{font-size:13px;font-weight:650}
+  .site-card .txt div{font-size:11px;color:var(--text-3);margin-top:3px}
+  .block-title{display:flex;align-items:center;justify-content:space-between;margin:22px 0 12px}
+  .block-title h3{font-size:15px}
+  .block-title .more{font-size:11.5px;color:var(--text-3);display:flex;align-items:center;gap:2px}
+  .ep-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+  .ep{height:40px;border-radius:11px;display:grid;place-items:center;font-size:12.5px;font-weight:600;color:var(--text-2);background:var(--tint-1);border:1px solid var(--line);cursor:pointer;transition:.16s}
+  .ep.on{background:linear-gradient(135deg,var(--accent-hi),var(--accent));color:#1a1206;border-color:transparent;box-shadow:0 8px 18px rgba(255,178,63,.22)}
+  .ep.lock{color:var(--text-3)}
+  .synopsis{border-radius:16px;border:1px solid var(--line);background:var(--surface);padding:14px 15px;font-size:12px;line-height:1.75;color:var(--text-2)}
+  .synopsis b{color:var(--text);font-weight:650}
+  .synopsis .fold{margin-top:8px;font-size:11.5px;color:var(--accent);display:inline-flex;align-items:center;gap:3px}
+  .sticky-play{position:absolute;left:16px;right:16px;bottom:18px;z-index:9;display:flex;gap:10px}
+  .sticky-play .btn-primary{flex:1;height:50px;border-radius:15px}
+
+  /* ---------- search ---------- */
+  .search-field{display:flex;align-items:center;gap:10px;padding:13px 14px;border-radius:15px;border:1px solid color-mix(in srgb,var(--accent) 38%,transparent);background:color-mix(in srgb,var(--accent) 7%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 6%,transparent)}
+  .search-field .q{flex:1;font-size:13.5px}
+  .caret{display:inline-block;width:1.5px;height:15px;background:var(--accent);vertical-align:-2px;animation:blink 1.1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .search-field .clear{width:22px;height:22px;border-radius:50%;background:var(--tint-3);display:grid;place-items:center;color:var(--text-2)}
+  .history-head{display:flex;align-items:center;justify-content:space-between;margin:22px 0 11px;font-size:13px}
+  .history-head .rm{color:var(--text-3);font-size:11.5px;display:flex;align-items:center;gap:4px}
+  .tag-cloud{display:flex;flex-wrap:wrap;gap:8px}
+  .tag{padding:8px 13px;border-radius:10px;background:var(--tint-1);border:1px solid var(--line);font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:7px}
+  .tag .x{color:var(--text-3);display:grid;place-items:center}
+  .tag .x .icon{width:11px;height:11px}
+  .hot-list{display:flex;flex-direction:column;gap:2px}
+  .hot-row{display:flex;align-items:center;gap:13px;padding:11px 2px;border-bottom:1px solid var(--line)}
+  .hot-row:last-child{border-bottom:0}
+  .rank{width:20px;font-size:13px;font-weight:800;color:var(--text-3);font-style:italic;text-align:center}
+  .rank.top{color:var(--accent)}
+  .hot-row .hname{flex:1;font-size:13.5px}
+  .hot-row .hmeta{font-size:10.5px;color:var(--text-3)}
+  .seg{display:flex;padding:4px;border-radius:12px;background:var(--tint-1);border:1px solid var(--line);margin-top:16px}
+  .seg span{flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:12px;color:var(--text-2);cursor:pointer}
+  .seg span.on{background:var(--tint-3);color:var(--text);font-weight:650}
+  .result-row{display:flex;gap:12px;padding:13px;border-radius:16px;border:1px solid var(--line);background:var(--surface);margin-top:11px;align-items:center}
+  .result-row .rp{width:56px;height:80px;border-radius:10px;position:relative;overflow:hidden;flex:none;background:linear-gradient(150deg,#3a2012,#140b08)}
+  .result-row .rp::after{content:"";position:absolute;inset:0;background:radial-gradient(60px 70px at 60% 30%,rgba(255,170,80,.5),transparent 70%)}
+  .result-row .rb{flex:1;min-width:0}
+  .result-row .rn{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .result-row .rm{font-size:11px;color:var(--text-3);margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .result-row .rplay{width:34px;height:34px;border-radius:50%;background:color-mix(in srgb,var(--accent) 13%,transparent);border:1px solid color-mix(in srgb,var(--accent) 32%,transparent);display:grid;place-items:center;color:var(--accent);flex:none}
+
+  /* ---------- live ---------- */
+  .live-preview{border-radius:20px;overflow:hidden;border:1px solid var(--line);position:relative;height:184px;background:linear-gradient(135deg,#2a1018,#0d070a)}
+  .live-preview::before{content:"";position:absolute;inset:0;background:radial-gradient(180px 150px at 70% 30%,rgba(255,77,109,.45),transparent 65%)}
+  .live-preview::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,12,.9),transparent 60%)}
+  .live-preview .lp-top{position:absolute;left:14px;top:13px;z-index:2;display:flex;align-items:center;gap:7px}
+  .live-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:rgba(255,77,109,.16);border:1px solid rgba(255,77,109,.45);font-size:10.5px;font-weight:800;color:#ff9aa9;letter-spacing:.06em}
+  .live-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--live);box-shadow:0 0 9px var(--live);animation:pulse 1.6s infinite}
+  @keyframes pulse{50%{opacity:.35}}
+  .live-preview .cn{position:absolute;left:14px;right:14px;bottom:12px;z-index:2}
+  .live-preview .cn b{font-size:17px;font-weight:800;color:#fff}
+  .live-preview .cn div{font-size:11px;color:rgba(255,255,255,.7);margin-top:5px}
+  .group-tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-top:17px;padding-bottom:3px}
+  .group-tabs::-webkit-scrollbar{display:none}
+  .epg-card{margin-top:14px;border-radius:16px;border:1px solid var(--line);background:var(--surface);padding:13px 14px}
+  .epg-card .now{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-3)}
+  .epg-card .prog{font-size:13.5px;font-weight:650;margin:7px 0 9px}
+  .epg-card .track{height:4px;border-radius:99px;background:var(--tint-3);overflow:hidden}
+  .epg-card .track i{display:block;height:100%;width:62%;background:linear-gradient(90deg,var(--live),#ff8a9e);border-radius:99px}
+  .ch-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .ch-logo{width:42px;height:42px;border-radius:12px;background:var(--tint-2);border:1px solid var(--line);display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--text-2);flex:none}
+  .ch-row .cbody{flex:1;min-width:0}
+  .ch-row .cname{font-size:13px;font-weight:650;display:flex;align-items:center;gap:6px}
+  .ch-row .cprog{font-size:11px;color:var(--text-3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ch-row .star{color:var(--text-3);flex:none}
+  .ch-row .star.on{color:var(--accent)}
+
+  /* ---------- settings ---------- */
+  .profile-card{border-radius:20px;padding:18px;border:1px solid var(--line);background:linear-gradient(140deg,color-mix(in srgb,var(--accent) 14%,transparent),transparent 55%);display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}
+  .profile-card::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(255,178,63,.18),transparent 70%)}
+  .profile-avatar{width:54px;height:54px;border-radius:17px;background:linear-gradient(145deg,var(--accent-hi),var(--accent-lo));display:grid;place-items:center;color:#1a1206;font-weight:900;font-size:19px;flex:none;box-shadow:0 10px 26px rgba(255,138,61,.3)}
+  .profile-card .pb{flex:1;min-width:0;position:relative;z-index:1}
+  .profile-card .pb b{font-size:16px;font-weight:800}
+  .profile-card .pb div{font-size:11.5px;color:var(--text-2);margin-top:4px}
+  .profile-card .ver{font-size:10px;padding:4px 9px;border-radius:999px;border:1px solid var(--line-strong);color:var(--text-2);position:relative;z-index:1}
+  .group-label{font-size:11.5px;color:var(--text-3);letter-spacing:.08em;text-transform:uppercase;margin:24px 0 10px;padding-left:4px}
+  .set-card{border-radius:18px;border:1px solid var(--line);background:var(--surface);overflow:hidden}
+  .set-row{display:flex;align-items:center;gap:13px;padding:14px 15px;border-bottom:1px solid var(--line);cursor:pointer}
+  .set-row:last-child{border-bottom:0}
+  .set-ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:none;background:var(--tint-2);color:var(--text-2)}
+  .set-ic.a{background:rgba(255,178,63,.12);color:var(--accent)}
+  .set-ic.b{background:rgba(108,155,255,.12);color:var(--blue)}
+  .set-ic.c{background:rgba(59,214,160,.12);color:var(--ok)}
+  .set-ic.d{background:rgba(255,77,109,.12);color:var(--live)}
+  .set-row .st{flex:1;min-width:0}
+  .set-row .st b{display:block;font-size:13.5px;font-weight:600}
+  .set-row .st span{display:block;font-size:11px;color:var(--text-3);margin-top:3px}
+  .set-row .val{font-size:11.5px;color:var(--text-3);display:flex;align-items:center;gap:4px}
+  .switch{width:42px;height:25px;border-radius:99px;background:var(--tint-4);position:relative;flex:none;transition:.2s}
+  .switch::after{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:.2s}
+  .switch.on{background:linear-gradient(135deg,var(--accent-hi),var(--accent))}
+  .switch.on::after{left:20px;background:#1a1206}
+  .theme-strip{display:flex;gap:9px;padding:14px 15px;border-bottom:1px solid var(--line)}
+  .swatch{width:30px;height:30px;border-radius:10px;position:relative;cursor:pointer}
+  .swatch.on{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--accent)}
+  .swatch.on::after{content:"";position:absolute;inset:0;border-radius:10px;border:2px solid rgba(0,0,0,.35)}
+
+
+  /* ---------- fullscreen player ---------- */
+  .player-section{margin-top:92px;border-top:1px solid var(--line);padding-top:46px}
+  .player-section h2{font-size:22px;margin:0 0 8px;letter-spacing:-.02em}
+  .player-section p{margin:0 0 24px;color:var(--text-2);font-size:13.5px;max-width:860px;line-height:1.7}
+  .landscape-wrap{display:flex;justify-content:center;padding:8px 0 4px;overflow-x:auto}
+  .ldevice{width:900px;height:470px;flex:none;border-radius:38px;padding:11px;position:relative;background:linear-gradient(160deg,#33333f,#17171e 30%,#0b0b10);box-shadow:var(--shadow),inset 0 0 0 1px rgba(255,255,255,.10)}
+  .ldevice::after{content:"";position:absolute;inset:5px;border-radius:33px;border:1px solid rgba(0,0,0,.65);pointer-events:none}
+  .lscreen{position:relative;width:100%;height:100%;border-radius:28px;overflow:hidden;background:#000;color:#fff}
+  .lnotch{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:7px;height:96px;border-radius:6px;background:#000;z-index:20;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+  .video-art{position:absolute;inset:0;background:
+    radial-gradient(560px 320px at 30% 46%,rgba(255,168,74,.45),transparent 62%),
+    radial-gradient(420px 260px at 74% 74%,rgba(88,120,255,.24),transparent 66%),
+    linear-gradient(135deg,#1f140d,#090910 62%)}
+  .video-art::after{content:"";position:absolute;inset:0;opacity:.42;background-image:repeating-linear-gradient(118deg,rgba(255,255,255,.03) 0 1px,transparent 1px 10px)}
+  .watermark{position:absolute;left:25%;top:50%;transform:translate(-50%,-50%);z-index:1;font-size:52px;font-weight:900;letter-spacing:.14em;color:rgba(255,255,255,.09);white-space:nowrap}
+  .pl-top{position:absolute;top:0;left:0;right:0;z-index:6;display:flex;align-items:center;gap:11px;padding:12px 15px;background:linear-gradient(to bottom,rgba(0,0,0,.72),transparent)}
+  .pl-title{flex:1;min-width:0}
+  .pl-title b{display:block;font-size:15px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pl-title span{display:block;font-size:10.5px;color:rgba(255,255,255,.62);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pl-tools{margin-left:auto;display:flex;gap:6px}
+  .pl-ico{width:35px;height:35px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(8,8,12,.4);display:grid;place-items:center;color:#fff;cursor:pointer;backdrop-filter:blur(9px);transition:.16s;flex:none}
+  .pl-ico:hover{background:rgba(8,8,12,.58)}
+  .pl-ico.on{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:color-mix(in srgb,var(--accent) 16%,rgba(8,8,12,.4))}
+  .pl-ico .icon{width:17px;height:17px}
+  .pl-center{position:absolute;left:224px;top:50%;transform:translate(-50%,-50%);z-index:6;display:flex;align-items:center;gap:22px}
+  .pl-side{width:44px;height:44px;border-radius:50%;background:rgba(8,8,12,.44);border:1px solid rgba(255,255,255,.22);display:grid;place-items:center;color:#fff;cursor:pointer;backdrop-filter:blur(8px)}
+  .pl-side .icon{width:18px;height:18px}
+  .pl-main{width:64px;height:64px;border-radius:50%;border:0;background:linear-gradient(135deg,var(--accent-hi),var(--accent) 55%,var(--accent-lo));color:#1a1206;display:grid;place-items:center;cursor:pointer;box-shadow:0 14px 38px color-mix(in srgb,var(--accent) 42%,transparent)}
+  .pl-main .icon{width:25px;height:25px;margin-left:3px}
+  .pl-dm{position:absolute;left:14px;top:50%;transform:translateY(-50%);z-index:6;display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:999px;background:rgba(8,8,12,.44);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:600;backdrop-filter:blur(9px);cursor:pointer}
+  .pl-dm .icon{width:14px;height:14px;color:var(--accent)}
+  .pl-bottom{position:absolute;left:0;right:452px;bottom:0;z-index:6;padding:0 15px 14px;background:linear-gradient(to top,rgba(0,0,0,.8),transparent)}
+  .pl-times{display:flex;justify-content:space-between;font-size:10.5px;color:rgba(255,255,255,.72);margin-bottom:6px;font-variant-numeric:tabular-nums}
+  .pl-seek{position:relative;height:4px;border-radius:99px;background:rgba(255,255,255,.22);margin-bottom:12px;cursor:pointer}
+  .pl-seek .buf{position:absolute;left:0;top:0;bottom:0;width:58%;border-radius:99px;background:rgba(255,255,255,.16)}
+  .pl-seek .fill{position:absolute;left:0;top:0;bottom:0;width:41%;border-radius:99px;background:linear-gradient(90deg,var(--accent-hi),var(--accent-lo))}
+  .pl-seek .knob{position:absolute;left:41%;top:50%;width:12px;height:12px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 30%,transparent)}
+  .pl-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .pl-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:9px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);color:#fff;font-size:11px;font-family:inherit;font-weight:600;cursor:pointer;backdrop-filter:blur(8px)}
+  .pl-chip .icon{width:14px;height:14px;opacity:.85}
+  .pl-chip.on{background:color-mix(in srgb,var(--accent) 88%,transparent);border-color:transparent;color:#1a1206}
+  .pl-more{margin-left:auto;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:9px;background:transparent;border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);color:var(--accent-hi);font-size:11px;font-family:inherit;font-weight:700;cursor:pointer}
+  .pl-more .icon{width:15px;height:15px}
+
+  .pl-drawer{position:absolute;top:60px;right:12px;bottom:12px;width:438px;z-index:10;border-radius:20px;border:1px solid rgba(255,255,255,.16);background:rgba(13,13,19,.85);backdrop-filter:blur(26px) saturate(160%);padding:12px 13px;box-shadow:0 24px 60px rgba(0,0,0,.55);display:flex;flex-direction:column}
+  .drawer-head{display:flex;align-items:center;gap:9px;margin-bottom:2px}
+  .drawer-head b{font-size:14px;font-weight:750}
+  .drawer-head span{font-size:10px;color:rgba(255,255,255,.45);margin-left:auto}
+  .drawer-close{width:28px;height:28px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;display:grid;place-items:center;cursor:pointer;flex:none}
+  .drawer-close .icon{width:14px;height:14px}
+  .dgl{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.42);margin:9px 0 5px}
+  .dgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .pl-drawer .abtn{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px;height:35px;padding:0 3px;border-radius:9px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);color:#fff;font-size:10.5px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap}
+  .pl-drawer .abtn .icon{width:13px;height:13px;color:rgba(255,255,255,.62)}
+  .pl-drawer .abtn span{display:none}
+  .pl-drawer .abtn.on{border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent-hi)}
+  .pl-drawer .abtn.on .icon{color:var(--accent)}
+  .pl-legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:18px;font-size:11.5px;color:var(--text-3)}
+  .pl-legend span{display:flex;align-items:center;gap:7px}
+  .pl-legend i{width:8px;height:8px;border-radius:3px;background:var(--accent);flex:none}
+  .pl-legend i.b{background:var(--blue)}
+  @media (max-width:620px){.landscape-wrap{justify-content:flex-start}}
+
+  /* ---------- component gallery ---------- */
+  .gallery{margin-top:90px;border-top:1px solid var(--line);padding-top:44px}
+  .gallery h2{font-size:22px;margin:0 0 8px;letter-spacing:-.02em}
+  .gallery p{margin:0 0 30px;color:var(--text-2);font-size:13.5px}
+  .gal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+  .gal{border:1px solid var(--line);border-radius:20px;padding:20px;background:linear-gradient(180deg,var(--tint-1),transparent)}
+  .gal .gl{font-size:11px;color:var(--text-3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:15px}
+  .gal-btns{display:flex;flex-wrap:wrap;gap:10px}
+  .gal-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .gal-card{border-radius:16px;border:1px solid var(--line);background:var(--surface);padding:14px;display:flex;gap:12px;align-items:center}
+  .gal-card .art{width:46px;height:64px;border-radius:9px;background:linear-gradient(150deg,#3a2012,#140b08);flex:none}
+  .gal-card b{font-size:13px}
+  .gal-card span{display:block;font-size:11px;color:var(--text-3);margin-top:4px}
+
+  .foot{margin-top:60px;text-align:center;color:var(--text-3);font-size:12px}
+  .foot b{color:var(--text-2)}
+  @media (max-width:520px){
+    body{padding:26px 12px 60px}
+    .device{transform:scale(.90);transform-origin:top center;margin-bottom:-80px}
+    h1{font-size:24px}
+  }
+</style>
+</head>
+<body>
+<svg class="sprite" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5-11-6.5Z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+  <symbol id="i-chev-d" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1Z"/></symbol>
+  <symbol id="i-live" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="m8 3 4 3 4-3M8 12h.01M16 12h.01"/></symbol>
+  <symbol id="i-set" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6-5.4-2.9L6.6 19.7l1-6-4.4-4.3 6.1-.9Z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9.3A4 4 0 0 1 12 8a4 4 0 0 1 7 2.7C19 15.6 12 20 12 20Z"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 4v10m0 0 4-4m-4 4-4-4M5 19h14"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></symbol>
+  <symbol id="i-cast" viewBox="0 0 24 24"><path d="M3 18v3M3 14v2M3 10v2M7 21h14a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H7"/><path d="M3 21a3 3 0 0 0-3-3"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 6-3 7-3 7h18s-3-1-3-7M10 20a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-tv" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="m8 3 4 4 4-4M8 22h8"/></symbol>
+  <symbol id="i-dot" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2 8.8a15 15 0 0 1 20 0M5 12.3a10 10 0 0 1 14 0M8.5 15.8a5 5 0 0 1 7 0M12 19h.01"/></symbol>
+  <symbol id="i-batt" viewBox="0 0 24 24"><rect x="2" y="7" width="17" height="10" rx="3"/><path d="M22 11v2"/></symbol>
+  <symbol id="i-signal" viewBox="0 0 24 24"><path d="M4 20v-3M9 20v-6M14 20v-9M19 20V7" stroke-width="2.4"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 1.6-2-.4-1 .2-2 1.4-2H17a4 4 0 0 0 4-4c0-5.5-4-10-9-10Z"/><circle cx="8" cy="10" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16" cy="10" r="1"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="M18 6v12L9 12Z" fill="currentColor" stroke="none"/><path d="M6 6v12"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M6 6v12l9-6Z" fill="currentColor" stroke="none"/><path d="M18 6v12"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></symbol>
+  <symbol id="i-subs" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 14h4M13 14h4M7 10h10"/></symbol>
+  <symbol id="i-audio" viewBox="0 0 24 24"><path d="M4 9v6h3l4 4V5L7 9Z"/><path d="M15 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12"/></symbol>
+  <symbol id="i-speed" viewBox="0 0 24 24"><path d="M4 18a8 8 0 1 1 16 0"/><path d="m12 14 4-4"/><circle cx="12" cy="14" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-ratio" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M8 15V9h5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-line" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6H14a4 4 0 0 1 4 4v5.5"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M20 15a2 2 0 0 1-2 2H9l-5 3V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/><path d="M8 9h8M8 13h5"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4M6 4h11l-2 4 2 4H6"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3l3 3-3 3"/><path d="M20 6H8a4 4 0 0 0-4 4v1"/><path d="M7 21l-3-3 3-3"/><path d="M4 18h12a4 4 0 0 0 4-4v-1"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2Z"/><path d="M8 3v18M11 8h5M11 12h5"/></symbol>
+  <symbol id="i-disc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></symbol>
+</svg>
+
+<div class="showcase">
+  <div class="topbar">
+    <div>
+      <div class="brandline">
+        <div class="brandmark">影</div>
+        <div>
+          <h1>影視TV <span>全新 UI</span></h1>
+          <div class="sub">Mobile 端 · 卡片化重设计 · 放弃原版布局与按钮体系</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <span class="badge">主题 <b>深色 / 浅色</b></span>
+      <span class="badge">组件 <b>卡片 / 胶囊按钮</b></span>
+      <span class="badge">平台 <b>仅 mobile</b></span>
+    </div>
+  </div>
+
+  <div class="theme-dock">
+    <div class="tc-group">
+      <span class="tc-label">主题色</span>
+      <div class="tc-swatches" id="accentSwatches">
+        <button class="swbtn on" data-accent="gold" style="background:linear-gradient(135deg,#FFD27A,#FF7A3D)" title="影院金"></button>
+        <button class="swbtn" data-accent="cyan" style="background:linear-gradient(135deg,#8DEBFF,#1596B8)" title="青碧"></button>
+        <button class="swbtn" data-accent="blue" style="background:linear-gradient(135deg,#9CC4FF,#3D6BFF)" title="电光蓝"></button>
+        <button class="swbtn" data-accent="green" style="background:linear-gradient(135deg,#7AF0C6,#12A97A)" title="翡翠绿"></button>
+        <button class="swbtn" data-accent="red" style="background:linear-gradient(135deg,#FF9AA9,#E03050)" title="珊瑚红"></button>
+        <button class="swbtn" data-accent="purple" style="background:linear-gradient(135deg,#C9A6FF,#7040E0)" title="紫罗兰"></button>
+      </div>
+    </div>
+    <div class="tc-group">
+      <span class="tc-label">背景</span>
+      <button class="bgbtn on" data-bg="pure">纯黑</button>
+      <button class="bgbtn" data-bg="slate">石板灰</button>
+      <button class="bgbtn" data-bg="navy">午夜蓝</button>
+      <button class="bgbtn" data-bg="white">纯白</button>
+      <button class="bgbtn" data-bg="cream">奶油</button>
+      <button class="bgbtn" data-bg="mist">雾灰</button>
+    </div>
+    <div class="tc-note">点击即时切换，所有界面同步更新</div>
+  </div>
+
+  <div class="tokens">
+    <div class="tok"><div class="sw" style="background:linear-gradient(135deg,#FFD27A,#FFB23F 55%,#FF7A3D)"></div><div class="nm"><span>强调色</span><code>#FFB23F</code></div></div>
+    <div class="tok"><div class="sw" style="background:#08080C;border-color:rgba(255,255,255,.16)"></div><div class="nm"><span>基础背景</span><code>#08080C</code></div></div>
+    <div class="tok"><div class="sw" style="background:#14141D"></div><div class="nm"><span>卡片表面</span><code>#14141D</code></div></div>
+    <div class="tok"><div class="sw" style="background:#1B1B26"></div><div class="nm"><span>高层面板</span><code>#1B1B26</code></div></div>
+    <div class="tok"><div class="sw" style="background:#F4F4F8"></div><div class="nm"><span>主文字</span><code>#F4F4F8</code></div></div>
+    <div class="tok"><div class="sw" style="background:#9C9CB0"></div><div class="nm"><span>次文字</span><code>#9C9CB0</code></div></div>
+    <div class="tok"><div class="sw" style="background:#FF4D6D"></div><div class="nm"><span>直播强调</span><code>#FF4D6D</code></div></div>
+    <div class="tok"><div class="sw" style="background:#3BD6A0"></div><div class="nm"><span>成功状态</span><code>#3BD6A0</code></div></div>
+  </div>
+
+  <div class="screens">
+
+    <!-- ============ 1. HOME ============ -->
+    <div class="device-wrap">
+      <div class="device">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="right">
+              <svg class="icon sm"><use href="#i-signal"/></svg>
+              <svg class="icon sm"><use href="#i-wifi"/></svg>
+              <svg class="icon sm"><use href="#i-batt"/></svg>
+            </span>
+          </div>
+          <div class="scroll">
+            <div class="home-head">
+              <div>
+                <div class="eyebrow">晚上好，欢迎回来</div>
+                <div class="brand">影視<i>TV</i></div>
+              </div>
+              <div class="avatar">F</div>
+            </div>
+
+            <button class="search-pill">
+              <svg class="icon"><use href="#i-search"/></svg>
+              搜索影片、演員、導演
+              <span class="kbd">⌘K</span>
+            </button>
+
+            <div class="chips">
+              <span class="chip active">推荐</span>
+              <span class="chip">电影</span>
+              <span class="chip">剧集</span>
+              <span class="chip">动漫</span>
+              <span class="chip">综艺</span>
+              <span class="chip">纪录片</span>
+            </div>
+
+            <div class="hero">
+              <div class="hero-art">
+                <div class="grain"></div>
+                <div class="glyph">DUNE</div>
+                <span class="hot"><span class="dot"></span>本周热门</span>
+              </div>
+              <div class="hero-body">
+                <div class="hero-title">沙丘：第二部</div>
+                <div class="hero-meta">
+                  <span>2024</span><span class="dotsep"></span>
+                  <span>科幻 / 冒险</span><span class="dotsep"></span>
+                  <span>4K HDR</span><span class="dotsep"></span>
+                  <span style="color:var(--accent)">9.2</span>
+                </div>
+                <div class="hero-actions">
+                  <button class="btn btn-primary" style="flex:1">
+                    <svg class="icon sm"><use href="#i-play"/></svg>立即播放
+                  </button>
+                  <button class="btn btn-icon"><svg class="icon"><use href="#i-plus"/></svg></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-head">
+              <h3>继续观看</h3>
+              <span class="more">全部<svg class="icon"><use href="#i-chev-r"/></svg></span>
+            </div>
+            <div class="row-cards">
+              <div class="cw">
+                <div class="art"><span class="t">庆余年 第二季</span><span class="play"><svg class="icon"><use href="#i-play"/></svg></span></div>
+                <div class="bar"><div class="meta"><span>第 12 集</span><span>18:42 / 45:00</span></div><div class="track"><i style="width:41%"></i></div></div>
+              </div>
+              <div class="cw">
+                <div class="art" style="background:linear-gradient(130deg,#1b1838,#0a0a16)"><span class="t">三体</span><span class="play"><svg class="icon"><use href="#i-play"/></svg></span></div>
+                <div class="bar"><div class="meta"><span>第 5 集</span><span>22:10 / 42:00</span></div><div class="track"><i style="width:53%"></i></div></div>
+              </div>
+              <div class="cw">
+                <div class="art" style="background:linear-gradient(130deg,#122a24,#07100d)"><span class="t">繁花</span><span class="play"><svg class="icon"><use href="#i-play"/></svg></span></div>
+                <div class="bar"><div class="meta"><span>第 30 集 完结</span><span>00:00 / 48:00</span></div><div class="track"><i style="width:6%"></i></div></div>
+              </div>
+            </div>
+
+            <div class="section-head">
+              <h3>为你推荐</h3>
+              <span class="more">更多<svg class="icon"><use href="#i-chev-r"/></svg></span>
+            </div>
+            <div class="grid-3">
+              <div class="poster p1"><div class="art"><span class="rate"><svg class="icon"><use href="#i-star"/></svg>8.7</span><span class="glyph">奥</span><div class="pmeta"><div class="pname">奥本海默</div><div class="pyear">2023 · 传记</div></div></div></div>
+              <div class="poster p2"><div class="art"><span class="rate"><svg class="icon"><use href="#i-star"/></svg>9.0</span><span class="glyph">流</span><div class="pmeta"><div class="pname">流浪地球 3</div><div class="pyear">2025 · 科幻</div></div></div></div>
+              <div class="poster p3"><div class="art"><span class="rate"><svg class="icon"><use href="#i-star"/></svg>8.4</span><span class="glyph">狂</span><div class="pmeta"><div class="pname">狂飙</div><div class="pyear">2023 · 犯罪</div></div></div></div>
+              <div class="poster p4"><div class="art"><span class="rate"><svg class="icon"><use href="#i-star"/></svg>8.9</span><span class="glyph">漫</span><div class="pmeta"><div class="pname">漫长的季节</div><div class="pyear">2023 · 悬疑</div></div></div></div>
+              <div class="poster p5"><div class="art"><span class="rate"><svg class="icon"><use href="#i-star"/></svg>7.9</span><span class="glyph">星</span><div class="pmeta"><div class="pname">星际穿越</div><div class="pyear">2014 · 科幻</div></div></div></div>
+              <div class="poster p6"><div class="art"><span class="rate"><svg class="icon"><use href="#i-star"/></svg>8.1</span><span class="glyph">甜</span><div class="pmeta"><div class="pname">甜蜜家园</div><div class="pyear">2024 · 恐怖</div></div></div></div>
+            </div>
+          </div>
+          <nav class="dock">
+            <span class="di on"><svg class="icon"><use href="#i-home"/></svg>影视</span>
+            <span class="di"><svg class="icon"><use href="#i-live"/></svg>直播</span>
+            <span class="di"><svg class="icon"><use href="#i-set"/></svg>设置</span>
+          </nav>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <div class="cap"><b>01</b> 首页 · 沉浸式 Hero + 卡片流</div>
+    </div>
+
+    <!-- ============ 2. TYPE / FILTER ============ -->
+    <div class="device-wrap">
+      <div class="device">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="right"><svg class="icon sm"><use href="#i-signal"/></svg><svg class="icon sm"><use href="#i-wifi"/></svg><svg class="icon sm"><use href="#i-batt"/></svg></span>
+          </div>
+          <div class="scroll">
+            <div class="page-head">
+              <button class="round-btn"><svg class="icon"><use href="#i-chev-l"/></svg></button>
+              <div class="page-title">泥巴 · 电影</div>
+              <button class="round-btn"><svg class="icon"><use href="#i-search"/></svg></button>
+            </div>
+
+            <div class="filter-group">
+              <div class="filter-line"><span class="filter-label">类型</span><span class="chip active ghost">全部</span><span class="chip ghost">动作</span><span class="chip ghost">喜剧</span><span class="chip ghost">科幻</span><span class="chip ghost">悬疑</span></div>
+              <div class="filter-line"><span class="filter-label">地区</span><span class="chip ghost">全部</span><span class="chip active ghost">华语</span><span class="chip ghost">欧美</span><span class="chip ghost">日韩</span></div>
+              <div class="filter-line"><span class="filter-label">年份</span><span class="chip ghost">全部</span><span class="chip ghost">2025</span><span class="chip ghost">2024</span><span class="chip active ghost">2023</span><span class="chip ghost">更早</span></div>
+            </div>
+
+            <div class="sortbar">
+              <div class="tabs"><b>最新</b><span>最热</span><span>评分</span></div>
+              <span class="count">共 1,284 部</span>
+            </div>
+
+            <div class="grid-2">
+              <div class="big-card"><div class="art p1"><span class="tag">4K</span><span class="glyph">奥</span><span class="b">2023 · 传记</span></div><div class="info"><div class="n">奥本海默</div><div class="m"><span class="site-dot"></span>泥巴 · 8.7</div></div></div>
+              <div class="big-card"><div class="art p2"><span class="tag">HDR</span><span class="glyph">流</span><span class="b">2025 · 科幻</span></div><div class="info"><div class="n">流浪地球 3</div><div class="m"><span class="site-dot"></span>泥巴 · 9.0</div></div></div>
+              <div class="big-card"><div class="art p3"><span class="tag">1080P</span><span class="glyph">狂</span><span class="b">2023 · 犯罪</span></div><div class="info"><div class="n">狂飙</div><div class="m"><span class="site-dot"></span>泥巴 · 8.4</div></div></div>
+              <div class="big-card"><div class="art p4"><span class="tag">完结</span><span class="glyph">漫</span><span class="b">2023 · 悬疑</span></div><div class="info"><div class="n">漫长的季节</div><div class="m"><span class="site-dot"></span>泥巴 · 8.9</div></div></div>
+              <div class="big-card"><div class="art p5"><span class="tag">4K</span><span class="glyph">星</span><span class="b">2014 · 科幻</span></div><div class="info"><div class="n">星际穿越</div><div class="m"><span class="site-dot"></span>泥巴 · 7.9</div></div></div>
+              <div class="big-card"><div class="art p6"><span class="tag">更新中</span><span class="glyph">甜</span><span class="b">2024 · 恐怖</span></div><div class="info"><div class="n">甜蜜家园</div><div class="m"><span class="site-dot"></span>泥巴 · 8.1</div></div></div>
+            </div>
+          </div>
+          <nav class="dock">
+            <span class="di on"><svg class="icon"><use href="#i-home"/></svg>影视</span>
+            <span class="di"><svg class="icon"><use href="#i-live"/></svg>直播</span>
+            <span class="di"><svg class="icon"><use href="#i-set"/></svg>设置</span>
+          </nav>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <div class="cap"><b>02</b> 分类 · 分组筛选 + 双列大卡</div>
+    </div>
+
+    <!-- ============ 3. DETAIL ============ -->
+    <div class="device-wrap">
+      <div class="device">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="right"><svg class="icon sm"><use href="#i-signal"/></svg><svg class="icon sm"><use href="#i-wifi"/></svg><svg class="icon sm"><use href="#i-batt"/></svg></span>
+          </div>
+          <div class="scroll" style="padding-bottom:100px">
+            <div class="detail-hero">
+              <div class="bg"></div>
+              <div class="detail-top">
+                <button class="round-btn"><svg class="icon"><use href="#i-chev-l"/></svg></button>
+                <div style="display:flex;gap:9px">
+                  <button class="round-btn"><svg class="icon"><use href="#i-heart"/></svg></button>
+                  <button class="round-btn"><svg class="icon"><use href="#i-cast"/></svg></button>
+                </div>
+              </div>
+              <div class="detail-main">
+                <div class="detail-poster"></div>
+                <div class="detail-info">
+                  <div class="dt">沙丘：第二部</div>
+                  <div class="dm"><span class="pill-tag hot">4K HDR</span><span class="pill-tag">科幻</span><span class="pill-tag">冒险</span></div>
+                  <div class="dm"><span>2024</span><span class="dotsep"></span><span>美国</span><span class="dotsep"></span><span>166 分钟</span></div>
+                  <div class="stars">
+                    <svg class="icon"><use href="#i-star"/></svg><svg class="icon"><use href="#i-star"/></svg><svg class="icon"><use href="#i-star"/></svg><svg class="icon"><use href="#i-star"/></svg><svg class="icon" style="opacity:.3"><use href="#i-star"/></svg>
+                    <span>9.2 · 12.8 万人评分</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="action-row">
+              <button class="btn btn-primary"><svg class="icon sm"><use href="#i-play"/></svg>立即播放</button>
+              <button class="btn btn-icon"><svg class="icon"><use href="#i-dl"/></svg></button>
+              <button class="btn btn-icon"><svg class="icon"><use href="#i-plus"/></svg></button>
+            </div>
+
+            <div class="site-card">
+              <div class="ic"><svg class="icon"><use href="#i-tv"/></svg></div>
+              <div class="txt"><b>当前线路：泥巴</b><div>3 条可用线路 · 自动选择最快</div></div>
+              <svg class="icon" style="color:var(--text-3)"><use href="#i-chev-r"/></svg>
+            </div>
+
+            <div class="block-title">
+              <h3>选集</h3>
+              <span class="more">共 12 集<svg class="icon"><use href="#i-chev-r"/></svg></span>
+            </div>
+            <div class="ep-grid">
+              <div class="ep on">01</div><div class="ep">02</div><div class="ep">03</div><div class="ep">04</div><div class="ep">05</div>
+              <div class="ep">06</div><div class="ep">07</div><div class="ep">08</div><div class="ep">09</div><div class="ep">10</div>
+              <div class="ep">11</div><div class="ep">12</div><div class="ep lock">13</div><div class="ep lock">14</div><div class="ep lock">15</div>
+            </div>
+
+            <div class="block-title"><h3>简介</h3></div>
+            <div class="synopsis">
+              <b>保罗·厄崔迪</b>与契妮和弗雷曼人联手，踏上复仇之路，对抗那些毁灭其家族的人。面对一生挚爱与已知宇宙命运之间的抉择，他必须努力阻止只有他能预见的可怕未来。
+              <div class="fold">展开全部<svg class="icon" style="width:13px;height:13px"><use href="#i-chev-d"/></svg></div>
+            </div>
+
+            <div class="block-title"><h3>相关推荐</h3><span class="more">更多<svg class="icon"><use href="#i-chev-r"/></svg></span></div>
+            <div class="grid-3" style="margin-bottom:10px">
+              <div class="poster p2"><div class="art"><div class="pmeta"><div class="pname">沙丘 1</div><div class="pyear">2021</div></div></div></div>
+              <div class="poster p5"><div class="art"><div class="pmeta"><div class="pname">星际穿越</div><div class="pyear">2014</div></div></div></div>
+              <div class="poster p6"><div class="art"><div class="pmeta"><div class="pname">降临</div><div class="pyear">2016</div></div></div></div>
+            </div>
+          </div>
+          <div class="sticky-play">
+            <button class="btn btn-primary"><svg class="icon sm"><use href="#i-play"/></svg>继续观看 第 1 集</button>
+            <button class="btn btn-icon" style="width:50px;height:50px"><svg class="icon"><use href="#i-star"/></svg></button>
+          </div>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <div class="cap"><b>03</b> 详情 · 海报层叠 + 选集卡片</div>
+    </div>
+
+    <!-- ============ 4. SEARCH ============ -->
+    <div class="device-wrap">
+      <div class="device">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="right"><svg class="icon sm"><use href="#i-signal"/></svg><svg class="icon sm"><use href="#i-wifi"/></svg><svg class="icon sm"><use href="#i-batt"/></svg></span>
+          </div>
+          <div class="scroll">
+            <div class="page-head" style="padding-bottom:8px">
+              <button class="round-btn"><svg class="icon"><use href="#i-chev-l"/></svg></button>
+              <div class="search-field" style="flex:1">
+                <svg class="icon" style="color:var(--accent)"><use href="#i-search"/></svg>
+                <div class="q">沙丘<span class="caret"></span></div>
+                <div class="clear"><svg class="icon" style="width:12px;height:12px"><use href="#i-close"/></svg></div>
+              </div>
+            </div>
+
+            <div class="history-head"><span style="font-weight:700">搜索历史</span><span class="rm"><svg class="icon" style="width:13px;height:13px"><use href="#i-trash"/></svg>清空</span></div>
+            <div class="tag-cloud">
+              <span class="tag">庆余年<span class="x"><svg class="icon"><use href="#i-close"/></svg></span></span>
+              <span class="tag">三体<span class="x"><svg class="icon"><use href="#i-close"/></svg></span></span>
+              <span class="tag">流浪地球<span class="x"><svg class="icon"><use href="#i-close"/></svg></span></span>
+              <span class="tag">繁花<span class="x"><svg class="icon"><use href="#i-close"/></svg></span></span>
+            </div>
+
+            <div class="history-head"><span style="font-weight:700">热门搜索</span><span style="font-size:11px;color:var(--text-3)">实时更新</span></div>
+            <div class="hot-list">
+              <div class="hot-row"><span class="rank top">1</span><span class="hname">沙丘：第二部</span><span class="hmeta">12.8 万</span></div>
+              <div class="hot-row"><span class="rank top">2</span><span class="hname">庆余年 第二季</span><span class="hmeta">9.6 万</span></div>
+              <div class="hot-row"><span class="rank top">3</span><span class="hname">流浪地球 3</span><span class="hmeta">8.1 万</span></div>
+              <div class="hot-row"><span class="rank">4</span><span class="hname">繁花</span><span class="hmeta">6.4 万</span></div>
+              <div class="hot-row"><span class="rank">5</span><span class="hname">三体</span><span class="hmeta">5.2 万</span></div>
+            </div>
+
+            <div class="seg"><span class="on">全部</span><span>影片</span><span>剧集</span><span>直播</span></div>
+
+            <div class="result-row">
+              <div class="rp"></div>
+              <div class="rb"><div class="rn">沙丘：第二部</div><div class="rm"><span class="pill-tag hot">4K</span><span>2024</span><span class="dotsep"></span><span>科幻</span><span class="dotsep"></span><span>泥巴</span></div></div>
+              <div class="rplay"><svg class="icon" style="width:14px;height:14px"><use href="#i-play"/></svg></div>
+            </div>
+            <div class="result-row">
+              <div class="rp" style="background:linear-gradient(150deg,#2c1a12,#140b08)"></div>
+              <div class="rb"><div class="rn">沙丘</div><div class="rm"><span class="pill-tag">1080P</span><span>2021</span><span class="dotsep"></span><span>科幻</span><span class="dotsep"></span><span>泥巴</span></div></div>
+              <div class="rplay"><svg class="icon" style="width:14px;height:14px"><use href="#i-play"/></svg></div>
+            </div>
+            <div class="result-row">
+              <div class="rp" style="background:linear-gradient(150deg,#1b1838,#0a0a16)"></div>
+              <div class="rb"><div class="rn">沙丘之子</div><div class="rm"><span class="pill-tag">完结</span><span>2003</span><span class="dotsep"></span><span>科幻</span><span class="dotsep"></span><span>泥巴</span></div></div>
+              <div class="rplay"><svg class="icon" style="width:14px;height:14px"><use href="#i-play"/></svg></div>
+            </div>
+          </div>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <div class="cap"><b>04</b> 搜索 · 聚焦态 + 结果卡片</div>
+    </div>
+
+    <!-- ============ 5. LIVE ============ -->
+    <div class="device-wrap">
+      <div class="device">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="right"><svg class="icon sm"><use href="#i-signal"/></svg><svg class="icon sm"><use href="#i-wifi"/></svg><svg class="icon sm"><use href="#i-batt"/></svg></span>
+          </div>
+          <div class="scroll">
+            <div class="home-head" style="padding-bottom:12px">
+              <div><div class="eyebrow">Live</div><div class="brand">直播电视</div></div>
+              <button class="round-btn"><svg class="icon"><use href="#i-search"/></svg></button>
+            </div>
+
+            <div class="live-preview">
+              <div class="lp-top"><span class="live-badge"><span class="dot"></span>LIVE</span><span class="chip ghost" style="background:rgba(0,0,0,.4)">CCTV-1 综合</span></div>
+              <div class="cn"><b>新闻联播</b><div>19:00 - 19:30 · 正在直播 · 1.2 万人观看</div></div>
+            </div>
+
+            <div class="group-tabs">
+              <span class="chip active">全部</span>
+              <span class="chip">央视</span>
+              <span class="chip">卫视</span>
+              <span class="chip">地方</span>
+              <span class="chip">体育</span>
+              <span class="chip">电影</span>
+              <span class="chip">少儿</span>
+            </div>
+
+            <div class="epg-card">
+              <div class="now"><span>正在播出</span><span>19:00 - 19:30</span></div>
+              <div class="prog">新闻联播</div>
+              <div class="track"><i></i></div>
+              <div class="now" style="margin-top:9px"><span style="color:var(--text-2)">下一档 · 焦点访谈 19:38</span></div>
+            </div>
+
+            <div class="block-title"><h3>频道列表</h3><span class="more">收藏 6 个</span></div>
+            <div>
+              <div class="ch-row"><div class="ch-logo">CCTV</div><div class="cbody"><div class="cname">CCTV-1 综合</div><div class="cprog">新闻联播 · 19:00-19:30</div></div><span class="star on"><svg class="icon"><use href="#i-star"/></svg></span></div>
+              <div class="ch-row"><div class="ch-logo">CCTV</div><div class="cbody"><div class="cname">CCTV-5 体育</div><div class="cprog">足球之夜 · 19:30-20:30</div></div><span class="star on"><svg class="icon"><use href="#i-star"/></svg></span></div>
+              <div class="ch-row"><div class="ch-logo">湖南</div><div class="cbody"><div class="cname">湖南卫视</div><div class="cprog">你好，星期六 · 20:10-22:00</div></div><span class="star"><svg class="icon"><use href="#i-star"/></svg></span></div>
+              <div class="ch-row"><div class="ch-logo">东方</div><div class="cbody"><div class="cname">东方卫视</div><div class="cprog">新闻透视 · 19:00-19:30</div></div><span class="star"><svg class="icon"><use href="#i-star"/></svg></span></div>
+              <div class="ch-row"><div class="ch-logo">浙江</div><div class="cbody"><div class="cname">浙江卫视</div><div class="cprog">奔跑吧 · 20:30-22:00</div></div><span class="star"><svg class="icon"><use href="#i-star"/></svg></span></div>
+            </div>
+          </div>
+          <nav class="dock">
+            <span class="di"><svg class="icon"><use href="#i-home"/></svg>影视</span>
+            <span class="di on"><svg class="icon"><use href="#i-live"/></svg>直播</span>
+            <span class="di"><svg class="icon"><use href="#i-set"/></svg>设置</span>
+          </nav>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <div class="cap"><b>05</b> 直播 · 预览卡 + EPG + 频道卡</div>
+    </div>
+
+    <!-- ============ 6. SETTINGS ============ -->
+    <div class="device-wrap">
+      <div class="device">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="right"><svg class="icon sm"><use href="#i-signal"/></svg><svg class="icon sm"><use href="#i-wifi"/></svg><svg class="icon sm"><use href="#i-batt"/></svg></span>
+          </div>
+          <div class="scroll">
+            <div class="home-head" style="padding-bottom:14px">
+              <div><div class="eyebrow">Settings</div><div class="brand">设置</div></div>
+              <button class="round-btn"><svg class="icon"><use href="#i-bell"/></svg></button>
+            </div>
+
+            <div class="profile-card">
+              <div class="profile-avatar">F</div>
+              <div class="pb"><b>FongMi</b><div>已同步 128 条收藏 · 3 台设备</div></div>
+              <span class="ver">v6.0.0</span>
+            </div>
+
+            <div class="group-label">外观</div>
+            <div class="set-card">
+              <div class="set-row" style="padding-bottom:10px">
+                <div class="set-ic a"><svg class="icon"><use href="#i-palette"/></svg></div>
+                <div class="st"><b>主题色</b><span>已固定为影院金，关闭动态取色</span></div>
+              </div>
+              <div class="theme-strip">
+                <span class="swatch on" style="background:linear-gradient(135deg,#FFD27A,#FF7A3D)"></span>
+                <span class="swatch" style="background:linear-gradient(135deg,#8FB8FF,#4D6BFF)"></span>
+                <span class="swatch" style="background:linear-gradient(135deg,#7AF0C6,#22B98B)"></span>
+                <span class="swatch" style="background:linear-gradient(135deg,#FF9AB0,#E8405F)"></span>
+                <span class="swatch" style="background:linear-gradient(135deg,#C7A6FF,#7A4DDB)"></span>
+                <span class="swatch" style="background:linear-gradient(135deg,#E8E8F0,#9090A8)"></span>
+              </div>
+              <div class="set-row"><div class="set-ic b"><svg class="icon"><use href="#i-grid"/></svg></div><div class="st"><b>卡片密度</b><span>首页与列表的间距</span></div><span class="val">舒适<svg class="icon" style="width:14px;height:14px"><use href="#i-chev-r"/></svg></span></div>
+              <div class="set-row"><div class="set-ic c"><svg class="icon"><use href="#i-tv"/></svg></div><div class="st"><b>壁纸</b><span>图片 / GIF / 视频</span></div><span class="val">关闭<svg class="icon" style="width:14px;height:14px"><use href="#i-chev-r"/></svg></span></div>
+            </div>
+
+            <div class="group-label">播放</div>
+            <div class="set-card">
+              <div class="set-row"><div class="set-ic a"><svg class="icon"><use href="#i-play"/></svg></div><div class="st"><b>播放器内核</b><span>切换解码方式</span></div><span class="val">ExoPlayer<svg class="icon" style="width:14px;height:14px"><use href="#i-chev-r"/></svg></span></div>
+              <div class="set-row"><div class="set-ic b"><svg class="icon"><use href="#i-cast"/></svg></div><div class="st"><b>投屏与接收</b><span>DLNA / 局域网设备</span></div><span class="switch on"></span></div>
+              <div class="set-row"><div class="set-ic d"><svg class="icon"><use href="#i-clock"/></svg></div><div class="st"><b>记忆播放</b><span>自动续播上次进度</span></div><span class="switch on"></span></div>
+            </div>
+
+            <div class="group-label">数据</div>
+            <div class="set-card">
+              <div class="set-row"><div class="set-ic c"><svg class="icon"><use href="#i-check"/></svg></div><div class="st"><b>备份与恢复</b><span>上次备份：今天 08:30</span></div><svg class="icon" style="color:var(--text-3)"><use href="#i-chev-r"/></svg></div>
+              <div class="set-row"><div class="set-ic b"><svg class="icon"><use href="#i-dl"/></svg></div><div class="st"><b>检查更新</b><span>当前已是最新版本</span></div><svg class="icon" style="color:var(--text-3)"><use href="#i-chev-r"/></svg></div>
+              <div class="set-row"><div class="set-ic d"><svg class="icon"><use href="#i-trash"/></svg></div><div class="st"><b>清除缓存</b><span>释放 128 MB 空间</span></div><span class="val">128 MB</span></div>
+            </div>
+          </div>
+          <nav class="dock">
+            <span class="di"><svg class="icon"><use href="#i-home"/></svg>影视</span>
+            <span class="di"><svg class="icon"><use href="#i-live"/></svg>直播</span>
+            <span class="di on"><svg class="icon"><use href="#i-set"/></svg>设置</span>
+          </nav>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <div class="cap"><b>06</b> 设置 · 分组卡片 + 新开关</div>
+    </div>
+
+  </div>
+
+
+  <!-- ============ FULLSCREEN PLAYER ============ -->
+  <section class="player-section">
+    <h2>07 全屏播放 · 控制层与全部按钮</h2>
+    <p>点击播放进入全屏后的控制层。顶部工具条、中央播放键、左侧弹幕、底部进度与常用胶囊保持常驻；右侧展开「更多控制」抽屉，把原版分布在横向滚动条里的按钮按语义全部收纳，一屏可见。</p>
+
+    <div class="landscape-wrap">
+      <div class="ldevice">
+        <div class="lscreen">
+          <div class="video-art"></div>
+          <div class="watermark">EPISODE 12</div>
+
+          <div class="pl-top">
+            <button class="pl-ico"><svg class="icon"><use href="#i-chev-l"/></svg></button>
+            <div class="pl-title"><b>庆余年 第二季</b><span>第 12 集 · 4K HDR · 泥巴线路 · 已跳过片头</span></div>
+            <div class="pl-tools">
+              <button class="pl-ico"><svg class="icon"><use href="#i-cast"/></svg></button>
+              <button class="pl-ico"><svg class="icon"><use href="#i-info"/></svg></button>
+              <button class="pl-ico on"><svg class="icon"><use href="#i-heart"/></svg></button>
+              <button class="pl-ico"><svg class="icon"><use href="#i-lock"/></svg></button>
+              <button class="pl-ico"><svg class="icon"><use href="#i-rotate"/></svg></button>
+              <button class="pl-ico"><svg class="icon"><use href="#i-set"/></svg></button>
+            </div>
+          </div>
+
+          <div class="pl-dm"><svg class="icon"><use href="#i-msg"/></svg>弹幕 开</div>
+
+          <div class="pl-center">
+            <button class="pl-side"><svg class="icon"><use href="#i-prev"/></svg></button>
+            <button class="pl-main"><svg class="icon"><use href="#i-play"/></svg></button>
+            <button class="pl-side"><svg class="icon"><use href="#i-next"/></svg></button>
+          </div>
+
+          <div class="pl-bottom">
+            <div class="pl-times"><span>18:42</span><span>-26:18</span></div>
+            <div class="pl-seek"><div class="buf"></div><div class="fill"></div><div class="knob"></div></div>
+            <div class="pl-row">
+              <button class="pl-chip"><svg class="icon"><use href="#i-list"/></svg>选集</button>
+              <button class="pl-chip"><svg class="icon"><use href="#i-speed"/></svg>倍速 1.0x</button>
+              <button class="pl-chip on"><svg class="icon"><use href="#i-subs"/></svg>字幕 中文</button>
+              <button class="pl-more"><svg class="icon"><use href="#i-more"/></svg>更多控制</button>
+            </div>
+          </div>
+
+          <div class="pl-drawer">
+            <div class="drawer-head">
+              <b>更多控制</b><span>27 个操作 · 全部可见</span>
+              <button class="drawer-close"><svg class="icon"><use href="#i-close"/></svg></button>
+            </div>
+
+            <div class="dgl">播放</div>
+            <div class="dgrid">
+              <button class="abtn"><svg class="icon"><use href="#i-list"/></svg>选集</button>
+              <button class="abtn on"><svg class="icon"><use href="#i-speed"/></svg>倍速</button>
+              <button class="abtn"><svg class="icon"><use href="#i-ratio"/></svg>比例</button>
+              <button class="abtn"><svg class="icon"><use href="#i-chip"/></svg>解码</button>
+              <button class="abtn on"><svg class="icon"><use href="#i-chip"/></svg>播放器</button>
+            </div>
+
+            <div class="dgl">线路</div>
+            <div class="dgrid">
+              <button class="abtn on"><svg class="icon"><use href="#i-line"/></svg>线路</button>
+              <button class="abtn"><svg class="icon"><use href="#i-search"/></svg>解析</button>
+              <button class="abtn"><svg class="icon"><use href="#i-chip"/></svg>内核</button>
+              <button class="abtn"><svg class="icon"><use href="#i-repeat"/></svg>换源</button>
+              <button class="abtn"><svg class="icon"><use href="#i-set"/></svg>配置</button>
+              <button class="abtn"><svg class="icon"><use href="#i-tv"/></svg>跨屏</button>
+              <button class="abtn"><svg class="icon"><use href="#i-next"/></svg>换台</button>
+            </div>
+
+            <div class="dgl">音画</div>
+            <div class="dgrid">
+              <button class="abtn on"><svg class="icon"><use href="#i-subs"/></svg>字幕</button>
+              <button class="abtn"><svg class="icon"><use href="#i-audio"/></svg>音轨</button>
+              <button class="abtn"><svg class="icon"><use href="#i-tv"/></svg>视频轨</button>
+              <button class="abtn on"><svg class="icon"><use href="#i-msg"/></svg>弹幕</button>
+              <button class="abtn"><svg class="icon"><use href="#i-rotate"/></svg>反色</button>
+            </div>
+
+            <div class="dgl">其他</div>
+            <div class="dgrid">
+              <button class="abtn"><svg class="icon"><use href="#i-flag"/></svg>片头</button>
+              <button class="abtn"><svg class="icon"><use href="#i-flag"/></svg>片尾</button>
+              <button class="abtn"><svg class="icon"><use href="#i-repeat"/></svg>循环</button>
+              <button class="abtn"><svg class="icon"><use href="#i-clock"/></svg>定时</button>
+              <button class="abtn"><svg class="icon"><use href="#i-book"/></svg>章节</button>
+              <button class="abtn"><svg class="icon"><use href="#i-disc"/></svg>版本</button>
+              <button class="abtn"><svg class="icon"><use href="#i-disc"/></svg>碟片</button>
+              <button class="abtn"><svg class="icon"><use href="#i-repeat"/></svg>重播</button>
+              <button class="abtn"><svg class="icon"><use href="#i-rotate"/></svg>重置</button>
+              <button class="abtn"><svg class="icon"><use href="#i-plus"/></svg>自定义</button>
+            </div>
+          </div>
+
+        </div>
+        <div class="lnotch"></div>
+      </div>
+    </div>
+
+    <div class="pl-legend">
+      <span><i></i>高频操作：选集 / 倍速 / 字幕 / 更多</span>
+      <span><i class="b"></i>抽屉内按播放、线路、音画、其他四组收纳</span>
+      <span>锁定与旋转已提到顶部工具条</span>
+    </div>
+  </section>
+
+  <!-- ============ DESIGN SYSTEM ============ -->
+  <section class="gallery">
+    <h2>组件规范</h2>
+    <p>所有页面复用同一套 token 与组件，按钮、卡片、标签、输入框全部重做。</p>
+    <div class="gal-grid">
+      <div class="gal">
+        <div class="gl">Button</div>
+        <div class="gal-btns">
+          <button class="btn btn-primary"><svg class="icon sm"><use href="#i-play"/></svg>主按钮</button>
+          <button class="btn btn-secondary">次按钮</button>
+          <button class="btn btn-ghost">幽灵按钮</button>
+          <button class="btn btn-danger">危险操作</button>
+          <button class="btn btn-icon"><svg class="icon"><use href="#i-plus"/></svg></button>
+        </div>
+      </div>
+      <div class="gal">
+        <div class="gl">Chip / Tag</div>
+        <div class="gal-chips">
+          <span class="chip active">选中</span>
+          <span class="chip">默认</span>
+          <span class="pill-tag hot">4K HDR</span>
+          <span class="pill-tag">科幻</span>
+          <span class="live-badge"><span class="dot"></span>LIVE</span>
+        </div>
+      </div>
+      <div class="gal">
+        <div class="gl">Card</div>
+        <div class="gal-card">
+          <div class="art"></div>
+          <div><b>标准卡片</b><span>16dp 圆角 / 1px 描边 / 层级表面</span></div>
+        </div>
+        <div style="height:10px"></div>
+        <div class="gal-card" style="background:linear-gradient(140deg,rgba(255,178,63,.12),rgba(255,255,255,.02))">
+          <div class="art" style="background:linear-gradient(150deg,#40230f,#170c07)"></div>
+          <div><b>强调卡片</b><span>用于 Hero、当前线路、会员入口</span></div>
+        </div>
+      </div>
+      <div class="gal">
+        <div class="gl">Input / Switch</div>
+        <div class="search-field" style="margin-bottom:12px">
+          <svg class="icon" style="color:var(--accent)"><use href="#i-search"/></svg>
+          <div class="q" style="color:var(--text-3)">输入关键词</div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:center">
+          <span class="switch on"></span>
+          <span class="switch"></span>
+          <span class="chip active">单选</span>
+          <span class="chip">未选</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">影視TV 新 UI 演示 · <b>mobile</b> · 设计确认后进入 Android 资源全量改造</div>
+</div>
+<script>
+  var ACCENTS = {
+    gold:   ['#FFD27A','#FFB23F','#FF7A3D'],
+    cyan:   ['#8DEBFF','#38C7E8','#1596B8'],
+    blue:   ['#9CC4FF','#6C9BFF','#3D6BFF'],
+    green:  ['#7AF0C6','#3BD6A0','#12A97A'],
+    red:    ['#FF9AA9','#FF5C7A','#E03050'],
+    purple: ['#C9A6FF','#9B6BFF','#7040E0']
+  };
+  var BGS = {
+    pure: {bg:'#08080C',surface:'#14141D',surface2:'#1B1B26',text:'#F4F4F8',text2:'#9C9CB0',text3:'#63637A',line:'rgba(255,255,255,.07)',lineS:'rgba(255,255,255,.12)',t1:'rgba(255,255,255,.035)',t2:'rgba(255,255,255,.06)',t3:'rgba(255,255,255,.10)',t4:'rgba(255,255,255,.14)',dock:'rgba(18,18,26,.72)'},
+    slate: {bg:'#0C1016',surface:'#161C25',surface2:'#1E2632',text:'#F2F5F8',text2:'#98A3B2',text3:'#64707F',line:'rgba(255,255,255,.075)',lineS:'rgba(255,255,255,.13)',t1:'rgba(255,255,255,.04)',t2:'rgba(255,255,255,.065)',t3:'rgba(255,255,255,.105)',t4:'rgba(255,255,255,.145)',dock:'rgba(20,26,34,.74)'},
+    navy: {bg:'#070B16',surface:'#121A2E',surface2:'#1A2440',text:'#EEF2FF',text2:'#98A3C4',text3:'#626C8C',line:'rgba(255,255,255,.08)',lineS:'rgba(255,255,255,.14)',t1:'rgba(255,255,255,.04)',t2:'rgba(255,255,255,.065)',t3:'rgba(255,255,255,.11)',t4:'rgba(255,255,255,.15)',dock:'rgba(14,20,38,.76)'},
+    white: {bg:'#F4F5F9',surface:'#FFFFFF',surface2:'#ECEFF6',text:'#14161E',text2:'#565C6E',text3:'#878DA0',line:'rgba(15,18,28,.08)',lineS:'rgba(15,18,28,.15)',t1:'rgba(15,18,28,.035)',t2:'rgba(15,18,28,.06)',t3:'rgba(15,18,28,.09)',t4:'rgba(15,18,28,.14)',dock:'rgba(255,255,255,.78)'},
+    cream: {bg:'#FAF6EF',surface:'#FFFFFF',surface2:'#F1EADD',text:'#1C1814',text2:'#6B6157',text3:'#9A8F82',line:'rgba(28,24,20,.08)',lineS:'rgba(28,24,20,.15)',t1:'rgba(28,24,20,.035)',t2:'rgba(28,24,20,.06)',t3:'rgba(28,24,20,.09)',t4:'rgba(28,24,20,.14)',dock:'rgba(255,252,246,.82)'},
+    mist:  {bg:'#EDF0F4',surface:'#FFFFFF',surface2:'#E2E7EF',text:'#161A22',text2:'#59606E',text3:'#8A91A0',line:'rgba(18,22,32,.08)',lineS:'rgba(18,22,32,.15)',t1:'rgba(18,22,32,.035)',t2:'rgba(18,22,32,.06)',t3:'rgba(18,22,32,.09)',t4:'rgba(18,22,32,.14)',dock:'rgba(255,255,255,.8)'}
+  };
+  var root = document.documentElement;
+  function setAccent(key){
+    var a = ACCENTS[key];
+    root.style.setProperty('--accent-hi', a[0]);
+    root.style.setProperty('--accent', a[1]);
+    root.style.setProperty('--accent-lo', a[2]);
+    var list = document.querySelectorAll('[data-accent]');
+    for (var i=0;i<list.length;i++) list[i].classList.toggle('on', list[i].getAttribute('data-accent')===key);
+  }
+  function setBg(key){
+    var b = BGS[key];
+    root.style.setProperty('--bg', b.bg);
+    root.style.setProperty('--surface', b.surface);
+    root.style.setProperty('--surface-2', b.surface2);
+    root.style.setProperty('--text', b.text);
+    root.style.setProperty('--text-2', b.text2);
+    root.style.setProperty('--text-3', b.text3);
+    root.style.setProperty('--line', b.line);
+    root.style.setProperty('--line-strong', b.lineS);
+    root.style.setProperty('--tint-1', b.t1);
+    root.style.setProperty('--tint-2', b.t2);
+    root.style.setProperty('--tint-3', b.t3);
+    root.style.setProperty('--tint-4', b.t4);
+    root.style.setProperty('--dock-bg', b.dock);
+    var list = document.querySelectorAll('[data-bg]');
+    for (var i=0;i<list.length;i++) list[i].classList.toggle('on', list[i].getAttribute('data-bg')===key);
+  }
+  var accents = document.querySelectorAll('[data-accent]');
+  for (var i=0;i<accents.length;i++) accents[i].addEventListener('click', function(){ setAccent(this.getAttribute('data-accent')); });
+  var bgs = document.querySelectorAll('[data-bg]');
+  for (var i=0;i<bgs.length;i++) bgs[i].addEventListener('click', function(){ setBg(this.getAttribute('data-bg')); });
+</script>
+</body>
+</html>

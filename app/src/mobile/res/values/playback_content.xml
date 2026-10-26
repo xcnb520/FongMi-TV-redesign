@@ -1,0 +1,20 @@
+<resources>
+
+    <style name="PlaybackContentAction" parent="PlaybackDialogAction" />
+
+    <style name="PlaybackContentCurrentAction" parent="PlaybackContentAction">
+        <item name="backgroundTint">@color/mc_accent_soft</item>
+        <item name="android:textColor">@color/mc_accent</item>
+    </style>
+
+    <style name="PlaybackContentTab" parent="PlaybackDialogTab" />
+
+    <style name="PlaybackContentItem">
+        <item name="android:background">@drawable/mc_chip</item>
+    </style>
+
+    <style name="PlaybackContentText">
+        <item name="android:textColor">@color/mc_chip_text</item>
+    </style>
+
+</resources>

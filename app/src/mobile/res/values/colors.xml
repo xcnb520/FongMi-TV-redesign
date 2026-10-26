@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ===== Design tokens: light ===== -->
+    <color name="mc_bg">#F4F5F9</color>
+    <color name="mc_bg_soft">#EDF0F5</color>
+    <color name="mc_surface">#FFFFFF</color>
+    <color name="mc_surface_2">#ECEFF6</color>
+    <color name="mc_surface_3">#E2E7EF</color>
+
+    <color name="mc_line">#140F121C</color>
+    <color name="mc_line_strong">#260F121C</color>
+    <color name="mc_tint_1">#090F121C</color>
+    <color name="mc_tint_2">#0F0F121C</color>
+    <color name="mc_tint_3">#170F121C</color>
+    <color name="mc_tint_4">#240F121C</color>
+
+    <color name="mc_text">#14161E</color>
+    <color name="mc_text_2">#565C6E</color>
+    <color name="mc_text_3">#878DA0</color>
+
+    <color name="mc_accent">#FFB23F</color>
+    <color name="mc_accent_hi">#FFC85C</color>
+    <color name="mc_accent_lo">#FF8A3D</color>
+    <color name="mc_on_accent">#1A1206</color>
+    <color name="mc_accent_soft">#26FFB23F</color>
+    <color name="mc_accent_line">#73FFB23F</color>
+
+    <color name="mc_live">#FF4D6D</color>
+    <color name="mc_live_soft">#26FF4D6D</color>
+    <color name="mc_blue">#3D6BFF</color>
+    <color name="mc_blue_soft">#223D6BFF</color>
+    <color name="mc_ok">#12A97A</color>
+    <color name="mc_ok_soft">#2212A97A</color>
+    <color name="mc_danger">#E03050</color>
+    <color name="mc_danger_soft">#22E03050</color>
+
+    <color name="mc_scrim">#CC000000</color>
+    <color name="mc_overlay">#B308080C</color>
+    <color name="mc_dock">#E6FFFFFF</color>
+    <color name="mc_shadow">#33000000</color>
+
+    <color name="mc_on_video">#FFFFFF</color>
+    <color name="mc_on_video_2">#B3FFFFFF</color>
+    <color name="mc_video_chip">#1AFFFFFF</color>
+    <color name="mc_video_chip_line">#29FFFFFF</color>
+
+</resources>

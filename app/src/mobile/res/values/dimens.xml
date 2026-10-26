@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="mc_space_1">4dp</dimen>
+    <dimen name="mc_space_2">8dp</dimen>
+    <dimen name="mc_space_3">12dp</dimen>
+    <dimen name="mc_space_4">16dp</dimen>
+    <dimen name="mc_space_5">20dp</dimen>
+    <dimen name="mc_space_6">24dp</dimen>
+    <dimen name="mc_space_8">32dp</dimen>
+
+    <dimen name="mc_radius_sm">10dp</dimen>
+    <dimen name="mc_radius_md">14dp</dimen>
+    <dimen name="mc_radius_lg">18dp</dimen>
+    <dimen name="mc_radius_xl">24dp</dimen>
+    <dimen name="mc_radius_pill">999dp</dimen>
+
+    <dimen name="mc_stroke">1dp</dimen>
+    <dimen name="mc_touch">44dp</dimen>
+    <dimen name="mc_icon">20dp</dimen>
+    <dimen name="mc_icon_lg">24dp</dimen>
+    <dimen name="mc_avatar">44dp</dimen>
+    <dimen name="mc_dock_height">68dp</dimen>
+    <dimen name="mc_toolbar_height">60dp</dimen>
+
+    <dimen name="mc_text_display">26sp</dimen>
+    <dimen name="mc_text_title">20sp</dimen>
+    <dimen name="mc_text_headline">17sp</dimen>
+    <dimen name="mc_text_body">14sp</dimen>
+    <dimen name="mc_text_caption">12sp</dimen>
+    <dimen name="mc_text_micro">10sp</dimen>
+
+</resources>

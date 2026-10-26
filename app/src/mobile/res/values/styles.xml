@@ -1,0 +1,208 @@
+<resources>
+
+    <!-- ================= Theme ================= -->
+    <style name="Theme.Base" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/mc_accent</item>
+        <item name="colorOnPrimary">@color/mc_on_accent</item>
+        <item name="colorPrimaryContainer">@color/mc_accent_soft</item>
+        <item name="colorOnPrimaryContainer">@color/mc_accent</item>
+        <item name="colorSecondary">@color/mc_accent</item>
+        <item name="colorOnSecondary">@color/mc_on_accent</item>
+        <item name="colorSecondaryContainer">@color/mc_surface_2</item>
+        <item name="colorOnSecondaryContainer">@color/mc_text</item>
+        <item name="colorTertiary">@color/mc_blue</item>
+        <item name="colorOnTertiary">@color/white</item>
+
+        <item name="colorSurface">@color/mc_surface</item>
+        <item name="colorOnSurface">@color/mc_text</item>
+        <item name="colorSurfaceVariant">@color/mc_surface_2</item>
+        <item name="colorOnSurfaceVariant">@color/mc_text_2</item>
+        <item name="colorSurfaceInverse">@color/mc_text</item>
+        <item name="colorOnSurfaceInverse">@color/mc_bg</item>
+        <item name="colorOutline">@color/mc_line_strong</item>
+        <item name="colorOutlineVariant">@color/mc_line</item>
+        <item name="colorError">@color/mc_danger</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="colorErrorContainer">@color/mc_danger_soft</item>
+        <item name="colorOnErrorContainer">@color/mc_danger</item>
+
+        <item name="android:colorBackground">@color/mc_bg</item>
+        <item name="android:windowBackground">@color/mc_bg</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:textColorPrimary">@color/mc_text</item>
+        <item name="android:textColorSecondary">@color/mc_text_2</item>
+        <item name="android:textColorHint">@color/mc_text_3</item>
+    </style>
+
+    <style name="Theme.Splash" parent="Theme.SplashScreen">
+        <item name="postSplashScreenTheme">@style/Theme.App</item>
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+    </style>
+
+    <style name="Theme.App" parent="Theme.Base" />
+
+    <style name="Theme.Crash" parent="Theme.Base">
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowBackground">@color/mc_bg</item>
+    </style>
+
+    <!-- ================= Type ================= -->
+    <style name="ToolbarTextAppearance" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">@dimen/mc_text_title</item>
+        <item name="android:textColor">@color/mc_text</item>
+        <item name="titleTextColor">@color/mc_text</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="McText.Display" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:textColor">@color/mc_text</item>
+        <item name="android:textSize">@dimen/mc_text_display</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <style name="McText.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/mc_text</item>
+        <item name="android:textSize">@dimen/mc_text_title</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="McText.Headline" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/mc_text</item>
+        <item name="android:textSize">@dimen/mc_text_headline</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="McText.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/mc_text</item>
+        <item name="android:textSize">@dimen/mc_text_body</item>
+    </style>
+
+    <style name="McText.Caption" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">@color/mc_text_2</item>
+        <item name="android:textSize">@dimen/mc_text_caption</item>
+    </style>
+
+    <style name="McText.Micro" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/mc_text_3</item>
+        <item name="android:textSize">@dimen/mc_text_micro</item>
+    </style>
+
+    <!-- ================= Surfaces ================= -->
+    <style name="McCard">
+        <item name="android:background">@drawable/mc_card</item>
+        <item name="android:clipToOutline">true</item>
+    </style>
+
+    <style name="McCard.Accent">
+        <item name="android:background">@drawable/mc_card_accent</item>
+        <item name="android:clipToOutline">true</item>
+    </style>
+
+    <style name="McPanel">
+        <item name="android:background">@drawable/mc_panel</item>
+        <item name="android:clipToOutline">true</item>
+    </style>
+
+    <style name="McPanel.Solid">
+        <item name="android:background">@drawable/mc_panel_solid</item>
+        <item name="android:clipToOutline">true</item>
+    </style>
+
+    <!-- ================= Chips ================= -->
+    <style name="McChip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/mc_chip</item>
+        <item name="android:textColor">@color/mc_chip_text</item>
+        <item name="android:textSize">@dimen/mc_text_caption</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">@dimen/mc_space_3</item>
+        <item name="android:paddingEnd">@dimen/mc_space_3</item>
+        <item name="android:paddingTop">@dimen/mc_space_2</item>
+        <item name="android:paddingBottom">@dimen/mc_space_2</item>
+    </style>
+
+    <style name="Control">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/mc_control_chip</item>
+        <item name="android:textColor">@color/mc_control_text</item>
+        <item name="android:textSize">@dimen/mc_text_caption</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">@dimen/mc_space_3</item>
+        <item name="android:paddingEnd">@dimen/mc_space_3</item>
+        <item name="android:paddingTop">@dimen/mc_space_2</item>
+        <item name="android:paddingBottom">@dimen/mc_space_2</item>
+        <item name="android:layout_marginEnd">@dimen/mc_space_1</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+    </style>
+
+    <style name="Control.Script" parent="Control">
+        <item name="android:layout_marginEnd">@dimen/mc_space_2</item>
+    </style>
+
+    <!-- ================= Buttons (TextViews) ================= -->
+    <style name="McButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">@dimen/mc_text_body</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingStart">@dimen/mc_space_4</item>
+        <item name="android:paddingEnd">@dimen/mc_space_4</item>
+        <item name="android:paddingTop">@dimen/mc_space_3</item>
+        <item name="android:paddingBottom">@dimen/mc_space_3</item>
+    </style>
+
+    <style name="McButton.Primary" parent="McButton">
+        <item name="android:background">@drawable/mc_button_primary</item>
+        <item name="android:textColor">@color/mc_on_accent</item>
+    </style>
+
+    <style name="McButton.Secondary" parent="McButton">
+        <item name="android:background">@drawable/mc_button_secondary</item>
+        <item name="android:textColor">@color/mc_text</item>
+    </style>
+
+    <style name="McButton.Ghost" parent="McButton">
+        <item name="android:background">@drawable/mc_button_ghost</item>
+        <item name="android:textColor">@color/mc_text_2</item>
+    </style>
+
+    <style name="McInput">
+        <item name="android:background">@drawable/mc_input</item>
+        <item name="android:textColor">@color/mc_text</item>
+        <item name="android:textColorHint">@color/mc_text_3</item>
+        <item name="android:textSize">@dimen/mc_text_body</item>
+        <item name="android:paddingStart">@dimen/mc_space_4</item>
+        <item name="android:paddingEnd">@dimen/mc_space_4</item>
+        <item name="android:paddingTop">@dimen/mc_space_3</item>
+        <item name="android:paddingBottom">@dimen/mc_space_3</item>
+    </style>
+
+    <style name="McFab" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="backgroundTint">@color/mc_surface_2</item>
+        <item name="tint">@color/mc_accent</item>
+        <item name="elevation">0dp</item>
+        <item name="shapeAppearanceOverlay">@style/McFabShape</item>
+    </style>
+
+    <style name="McFabShape">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/mc_radius_md</item>
+    </style>
+
+    <style name="McNavIndicator" parent="Widget.Material3.NavigationBarView.ActiveIndicator">
+        <item name="android:color">@color/mc_accent_soft</item>
+    </style>
+
+    <style name="MpvScriptItem">
+        <item name="android:background">@drawable/mc_chip</item>
+    </style>
+
+</resources>

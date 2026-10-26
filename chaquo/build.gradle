@@ -1,0 +1,27 @@
+plugins {
+    alias libs.plugins.android.library
+}
+
+android {
+    namespace = 'com.fongmi.chaquo'
+
+    compileSdk libs.versions.compileSdk.get().toInteger()
+
+    defaultConfig {
+        consumerProguardFiles 'consumer-rules.pro'
+        minSdk libs.versions.minSdk.get().toInteger()
+        targetSdk libs.versions.targetSdk.get().toInteger()
+    }
+
+    compileOptions {
+        coreLibraryDesugaringEnabled = true
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+}
+
+dependencies {
+    api "com.chaquo.python.runtime:chaquopy_java:${libs.versions.python.get()}@jar"
+    compileOnly project(':catvod')
+    coreLibraryDesugaring libs.desugar
+}

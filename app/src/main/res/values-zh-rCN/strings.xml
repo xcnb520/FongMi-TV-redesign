@@ -1,0 +1,603 @@
+<resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
+
+    <!-- App -->
+    <string name="app_name">影视</string>
+
+    <!-- Live -->
+    <string name="live_pass">密码</string>
+    <string name="live_refresh">刷新</string>
+    <string name="live_line">线路 <xliff:g name="name">%s</xliff:g></string>
+
+    <!-- Detail -->
+    <string name="detail_title"><xliff:g name="name">%s</xliff:g>：<xliff:g name="name">%s</xliff:g></string>
+    <string name="detail_site">站源：<xliff:g name="name">%s</xliff:g></string>
+    <string name="detail_year">年份：<xliff:g name="name">%s</xliff:g></string>
+    <string name="detail_area">地区：<xliff:g name="name">%s</xliff:g></string>
+    <string name="detail_type">类型：<xliff:g name="name">%s</xliff:g></string>
+    <string name="detail_director">导演：<xliff:g name="name">%s</xliff:g></string>
+    <string name="detail_actor">演员：<xliff:g name="name">%s</xliff:g></string>
+    <string name="detail_content">简介：<xliff:g name="name">%s</xliff:g></string>
+    <string name="detail_desc">简介</string>
+
+    <!-- Keep -->
+    <string name="keep">收藏</string>
+    <string name="keep_add">已加入收藏</string>
+    <string name="keep_del">已取消收藏</string>
+
+    <!-- Play -->
+    <string name="play">播放</string>
+    <string name="pause">暂停</string>
+    <string name="play_op">片头</string>
+    <string name="play_ed">片尾</string>
+    <string name="play_exo">EXO</string>
+    <string name="play_mpv">MPV</string>
+    <string name="play_other">其它</string>
+    <string name="play_next">下集</string>
+    <string name="play_prev">上集</string>
+    <string name="play_stop">停止</string>
+    <string name="play_repeat">循环</string>
+    <string name="play_forward">→</string>
+    <string name="play_backward">←</string>
+    <string name="play_speed">倍速</string>
+    <string name="play_speed_hint">倍速 <xliff:g name="speed">%1$s</xliff:g></string>
+    <string name="play_reset">刷新</string>
+    <string name="play_replay">重播</string>
+    <string name="play_timer">定时</string>
+    <string name="play_edition">标题</string>
+    <string name="play_chapter">章节</string>
+    <string name="play_disc_menu">主菜单</string>
+    <string name="play_disc_menu_unavailable">当前无法打开此光盘菜单。若为 BD-J，请先到“设置 → 模块管理”安装 Java 运行环境。</string>
+    <string name="play_disc_menu_timeout">菜单尚未打开，请重试</string>
+    <string name="play_scale">原始</string>
+    <string name="play_config">配置</string>
+    <string name="play_change">换源</string>
+    <string name="play_invert">反转</string>
+    <string name="play_across">跨类</string>
+    <string name="play_reverse">倒序</string>
+    <string name="play_track_text">字幕</string>
+    <string name="play_track_audio">音轨</string>
+    <string name="play_track_video">视轨</string>
+    <string name="play_forward_hint">已切换正序播放</string>
+    <string name="play_backward_hint">已切换倒序播放</string>
+    <string name="play_switch_flag">正在切换线路至「<xliff:g name="name">%s</xliff:g>」</string>
+    <string name="play_switch_site">正在切换站源至「<xliff:g name="name">%s</xliff:g>」</string>
+    <string name="play_switch_parse">正在切换解析至「<xliff:g name="name">%s</xliff:g>」</string>
+
+    <!-- Playback Setting -->
+    <string name="setting_tab_offset">偏移</string>
+    <string name="setting_effect_basic">基础</string>
+    <string name="setting_effect_scene">场景</string>
+    <string name="setting_effect_custom">自定义</string>
+    <string name="setting_preset_original">原始</string>
+
+    <!-- Speed Setting -->
+    <string name="speed_setting">倍速设置</string>
+    <string name="speed_setting_reset">重置</string>
+    <string name="speed_setting_current">播放速度</string>
+    <string name="speed_setting_long_press">长按倍速</string>
+    <string name="speed_setting_quick">快速选择</string>
+    <string name="speed_setting_skip_silence">跳过无声片段</string>
+
+    <!-- Audio Setting -->
+    <string name="audio_setting">音质设置</string>
+    <string name="audio_effect_compare">比较</string>
+    <string name="audio_effect_reset">重置</string>
+    <string name="audio_effect_tab_preset">效果</string>
+    <string name="audio_effect_tab_equalizer">调整</string>
+    <string name="audio_effect_tab_advanced">进阶</string>
+    <string name="audio_offset">音轨偏移</string>
+    <string name="audio_effect_category_tone">音色</string>
+    <string name="audio_effect_category_genre">曲风</string>
+    <string name="audio_effect_natural">自然</string>
+    <string name="audio_effect_vocal">人声</string>
+    <string name="audio_effect_cinema">影院</string>
+    <string name="audio_effect_bass">低音</string>
+    <string name="audio_effect_treble">高音</string>
+    <string name="audio_effect_pop">流行</string>
+    <string name="audio_effect_rock">摇滚</string>
+    <string name="audio_effect_dance">舞曲</string>
+    <string name="audio_effect_electronic">电音</string>
+    <string name="audio_effect_hiphop">嘻哈</string>
+    <string name="audio_effect_jazz">爵士</string>
+    <string name="audio_effect_classical">古典</string>
+    <string name="audio_effect_custom">自定义</string>
+    <string name="audio_effect_stability">音量稳定</string>
+    <string name="audio_effect_stability_summary">缩小影片内的大小声差距</string>
+    <string name="audio_effect_boost">音量增益</string>
+    <string name="audio_effect_dialogue">语音增强</string>
+    <string name="audio_effect_balance">声道平衡</string>
+    <string name="audio_effect_headroom">前级衰减</string>
+    <string name="audio_effect_loudness">响度平衡</string>
+    <string name="audio_effect_loudness_summary">平衡不同影片的平均音量</string>
+    <string name="audio_effect_center_gain">中置声道增益</string>
+    <string name="audio_channel_mode">声道模式</string>
+    <string name="audio_channel_auto">自动</string>
+    <string name="audio_channel_stereo">立体</string>
+    <string name="audio_channel_mono">单声</string>
+    <string name="audio_channel_reverse">反转</string>
+    <string name="audio_effect_balance_center">中央</string>
+    <string name="audio_effect_balance_left">左 %1$d%%</string>
+    <string name="audio_effect_balance_right">右 %1$d%%</string>
+
+    <!-- Video Setting -->
+    <string name="video_setting">画质设置</string>
+    <string name="video_effect_compare">比较</string>
+    <string name="video_effect_reset">重置</string>
+    <string name="video_effect_tab_preset">效果</string>
+    <string name="video_effect_tab_adjust">调整</string>
+    <string name="video_effect_category_boost">增强</string>
+    <string name="video_effect_category_tone">风格</string>
+    <string name="video_effect_natural">自然</string>
+    <string name="video_effect_vivid">臻彩</string>
+    <string name="video_effect_clear">清晰</string>
+    <string name="video_effect_bright">明亮</string>
+    <string name="video_effect_cinema">影院</string>
+    <string name="video_effect_soft">柔和</string>
+    <string name="video_effect_warm">暖色</string>
+    <string name="video_effect_cool">冷色</string>
+    <string name="video_effect_comfort">护眼</string>
+    <string name="video_effect_anime">动画</string>
+    <string name="video_effect_sport">运动</string>
+    <string name="video_effect_game">游戏</string>
+    <string name="video_effect_custom">自定义</string>
+    <string name="video_effect_saturation">饱和度</string>
+    <string name="video_effect_contrast">对比度</string>
+    <string name="video_effect_brightness">亮度</string>
+    <string name="video_effect_gamma">伽马</string>
+    <string name="video_effect_hue">色相</string>
+    <string name="video_effect_temperature">色温</string>
+    <string name="video_effect_sharpness">锐利度</string>
+    <string name="video_effect_shadow">阴影提亮</string>
+
+    <!-- Subtitle Setting -->
+    <string name="subtitle_setting">字幕设置</string>
+    <string name="subtitle_search_token_hint">Token</string>
+    <string name="subtitle_reset">重置</string>
+    <string name="subtitle_tab_appearance">外观</string>
+    <string name="subtitle_tab_adjust">调整</string>
+    <string name="subtitle_tab_advanced">进阶</string>
+    <string name="subtitle_offset">字幕偏移</string>
+    <string name="subtitle_size">大小</string>
+    <string name="subtitle_brightness">字幕亮度</string>
+    <string name="subtitle_position">位置</string>
+    <string name="subtitle_primary_position">主字幕位置</string>
+    <string name="subtitle_style">样式</string>
+    <string name="playback_font">字体</string>
+    <string name="playback_font_default">系统默认</string>
+    <string name="playback_font_import">导入字体</string>
+    <string name="playback_font_imported">已导入字体：%1$s</string>
+    <string name="playback_font_import_failed">无法导入字体</string>
+    <string name="playback_font_load_failed">无法加载字体</string>
+    <string name="subtitle_style_original">原始</string>
+    <string name="subtitle_style_system">系统</string>
+    <string name="subtitle_style_custom">自定义</string>
+    <string name="subtitle_system_setting">系统字幕设置</string>
+    <string name="subtitle_text_color">字幕颜色</string>
+    <string name="subtitle_text_opacity">字幕透明度</string>
+    <string name="subtitle_edge_style">边框样式</string>
+    <string name="subtitle_edge_none">无</string>
+    <string name="subtitle_edge_outline">描边</string>
+    <string name="subtitle_edge_shadow">阴影</string>
+    <string name="subtitle_edge_color">边框颜色</string>
+    <string name="subtitle_edge_opacity">边框透明度</string>
+    <string name="subtitle_edge_width">边框粗细</string>
+    <string name="subtitle_shadow_strength">阴影强度</string>
+    <string name="subtitle_background">背景</string>
+    <string name="subtitle_background_opacity">背景透明度</string>
+    <string name="subtitle_secondary_track">双字幕</string>
+    <string name="subtitle_secondary_default">默认</string>
+    <string name="subtitle_secondary_off">关闭</string>
+    <string name="subtitle_secondary_auto">自动</string>
+    <string name="subtitle_secondary_select">指定</string>
+    <string name="subtitle_primary_role">主</string>
+    <string name="subtitle_secondary_role">副</string>
+    <string name="subtitle_secondary_track_select">副字幕</string>
+    <string name="subtitle_secondary_position">副字幕位置</string>
+    <string name="subtitle_color_white">白色</string>
+    <string name="subtitle_color_yellow">黄色</string>
+    <string name="subtitle_color_cyan">青色</string>
+    <string name="subtitle_color_green">绿色</string>
+    <string name="subtitle_color_orange">橙色</string>
+    <string name="subtitle_color_pink">粉色</string>
+    <string name="subtitle_color_red">红色</string>
+    <string name="subtitle_color_blue">蓝色</string>
+    <string name="subtitle_color_black">黑色</string>
+    <string name="subtitle_color_gray">灰色</string>
+    <string name="subtitle_color_transparent">透明</string>
+    <string name="subtitle_background_dim">半透明黑色</string>
+
+    <!-- Danmaku Setting -->
+    <string name="danmaku">弹幕</string>
+    <string name="danmaku_select">选择弹幕</string>
+    <string name="danmaku_setting">弹幕设置</string>
+    <string name="danmaku_text_size">字体缩放</string>
+    <string name="danmaku_transparency">透明度</string>
+    <string name="danmaku_text_bold">粗体</string>
+    <string name="danmaku_style_mode">字体效果</string>
+    <string name="danmaku_style_none">无</string>
+    <string name="danmaku_style_shadow">阴影</string>
+    <string name="danmaku_style_stroke">描边</string>
+    <string name="danmaku_style_projection">投影</string>
+    <string name="danmaku_shadow_transparency">阴影透明度</string>
+    <string name="danmaku_stroke_width">描边宽度</string>
+    <string name="danmaku_projection_offset_x">投影水平偏移</string>
+    <string name="danmaku_projection_offset_y">投影垂直偏移</string>
+    <string name="danmaku_projection_transparency">投影透明度</string>
+    <string name="danmaku_color_mode">颜色模式</string>
+    <string name="danmaku_color_default">原色</string>
+    <string name="danmaku_color_colorful">彩色</string>
+    <string name="danmaku_color_gradient">渐变</string>
+    <string name="danmaku_color_override_hint">弹幕原始颜色将被忽略</string>
+    <string name="danmaku_auto">自动</string>
+    <string name="danmaku_duration">滚动时间</string>
+    <string name="danmaku_fixed_duration">固定显示时间</string>
+    <string name="danmaku_time_offset">时间偏移</string>
+    <string name="danmaku_max_on_screen">最多同时显示</string>
+    <string name="danmaku_scroll_area_ratio">滚动区域</string>
+    <string name="danmaku_max_scroll_lines">最大滚动行数</string>
+    <string name="danmaku_max_top_lines">最大顶部行数</string>
+    <string name="danmaku_max_bottom_lines">最大底部行数</string>
+    <string name="danmaku_line_spacing">垂直间距</string>
+    <string name="danmaku_scroll_gap_ratio">水平间距</string>
+    <string name="danmaku_show_scroll">滚动弹幕</string>
+    <string name="danmaku_show_top">顶部固定</string>
+    <string name="danmaku_show_bottom">底部固定</string>
+    <string name="danmaku_show_reverse">反向滚动</string>
+    <string name="danmaku_show_positioned">定位弹幕</string>
+    <string name="danmaku_show_subtitle">字幕型</string>
+    <string name="danmaku_show_special">特效型</string>
+    <string name="danmaku_section_appearance">外观</string>
+    <string name="danmaku_section_display">显示</string>
+    <string name="danmaku_section_timing">时间</string>
+    <string name="danmaku_section_density">密度</string>
+    <string name="danmaku_reset">重置</string>
+
+    <!-- Parse -->
+    <string name="parse">解析</string>
+    <string name="parse_god">超级解析</string>
+    <string name="parse_from">解析来自：<xliff:g name="name">%s</xliff:g></string>
+
+    <!-- Push -->
+    <string name="local">本地</string>
+    <string name="push">推送</string>
+
+    <!-- Setting -->
+    <string name="setting_vod">点播</string>
+    <string name="setting_live">直播</string>
+    <string name="setting_wall">壁纸</string>
+    <string name="setting_player">播放设置</string>
+    <string name="setting_module">模块管理</string>
+    <string name="setting_danmaku">弹幕设置</string>
+    <string name="setting_incognito">无痕模式</string>
+    <string name="setting_theme_color">主题色彩</string>
+    <string name="setting_auto">自动</string>
+    <string name="setting_custom">自定义</string>
+    <string name="setting_size">图片尺寸</string>
+    <string name="setting_doh">DoH</string>
+    <string name="setting_proxy">Proxy</string>
+    <string name="setting_cache">缓存</string>
+    <string name="setting_backup">备份</string>
+    <string name="setting_restore">恢复</string>
+    <string name="setting_version">版本</string>
+    <string name="setting_choose">选择</string>
+    <string name="setting_off">关</string>
+    <string name="setting_on">开</string>
+
+    <string name="module_bdj">BD-J</string>
+    <string name="module_version">版本：%1$s</string>
+    <string name="module_installing">安装中…</string>
+    <string name="module_cancelling">取消中…</string>
+    <string name="module_cancelled">已取消</string>
+    <string name="module_complete">已安装</string>
+    <string name="module_failed">失败：%1$s</string>
+    <string name="module_cancel">取消</string>
+    <string name="module_failed_title">操作失败</string>
+    <string name="module_check">检查</string>
+    <string name="module_test">检测</string>
+    <string name="module_untested">尚未检测</string>
+    <string name="module_testing">检测中…</string>
+    <string name="module_test_passed">检测通过</string>
+    <string name="module_test_failed">检测失败</string>
+    <string name="module_test_changed">模块已变更，请重新检测</string>
+    <string name="module_environment_ready">环境就绪</string>
+    <string name="module_checking">检查中…</string>
+    <string name="module_current">已安装</string>
+    <string name="module_available">可更新</string>
+    <string name="module_not_installed">未安装</string>
+    <string name="error_module_missing">%1$s 未安装，请至模块管理下载</string>
+    <string name="module_unsupported">此设备不支持</string>
+    <string name="module_restart">请重新启动</string>
+    <string name="module_restart_action">重启</string>
+    <string name="module_waiting">准备中…</string>
+    <string name="module_downloading">下载中…</string>
+    <string name="module_download">下载</string>
+    <string name="module_update">更新</string>
+    <string name="module_update_notice">%1$s 有新版本，请到模块管理更新</string>
+
+    <string name="module_unavailable">暂未提供</string>
+    <string name="module_confirm_install">请在系统画面确认安装，长按可取消</string>
+    <string name="module_remove">移除</string>
+    <string name="module_removing">移除中…</string>
+    <string name="module_confirm_remove">请在系统画面确认移除</string>
+    <string name="module_removed">已移除</string>
+
+    <!-- Backup & Restore -->
+    <string name="restore_select">选择备份</string>
+    <string name="restore_success">恢复成功</string>
+    <string name="restore_fail">恢复失败</string>
+    <string name="backup_success">备份成功</string>
+    <string name="backup_fail">备份失败</string>
+
+    <!-- Player -->
+    <string name="player">播放核心</string>
+    <string name="player_engine">播放引擎</string>
+    <string name="player_debug">调试</string>
+    <string name="player_render">视频输出</string>
+    <string name="player_libass">字幕特效</string>
+    <string name="player_background">后台播放</string>
+    <string name="player_audio_pass_through">音频直通</string>
+    <string name="player_audio_decode">音频软解</string>
+    <string name="player_video_decode">视频软解</string>
+    <string name="player_dolby_vision_output">杜比视界</string>
+    <string name="player_aac_track">AAC优先</string>
+    <string name="player_adblock">智能去广</string>
+    <string name="player_tunnel">隧道模式</string>
+    <string name="player_buffer">缓冲时间</string>
+    <string name="player_decode_setting">解码设置</string>
+    <string name="player_preload_setting">预载设置</string>
+    <string name="player_preload">预载</string>
+    <string name="player_preload_next">预载下集</string>
+    <string name="player_preload_threads">预载线程</string>
+    <string name="player_preload_threads_value">%1$d 条</string>
+    <string name="player_preload_size">预载容量</string>
+    <string name="player_preload_time">预载时间</string>
+    <string name="player_preload_time_value">%1$d 秒</string>
+    <string name="player_mpv_conf">mpv.conf</string>
+    <string name="player_mpv_gpu_next">gpu-next</string>
+    <string name="player_mpv_vulkan">vulkan</string>
+    <string name="player_mpv_conf_priority_hint">重进播放页加载 mpv.conf；片源参数、脚本与界面之后仍可改写，最后写入者生效。volume 作为界面音量基准。</string>
+    <string name="player_mpv_conf_conflict_hint">界面会管理：%1$s。片源参数、脚本与界面以最后写入者为准；volume 作为界面音量基准。</string>
+    <string name="player_mpv_conf_import_success">已载入 mpv.conf，按确定后保存</string>
+    <string name="player_mpv_conf_import_failed">无法导入 mpv.conf</string>
+    <string name="player_mpv_conf_save_failed">无法保存 mpv.conf</string>
+    <string name="player_ua">User-Agent</string>
+
+    <!-- Danmaku -->
+    <string name="danmaku_load">弹幕加载</string>
+    <string name="danmaku_api">搜索接口</string>
+    <string name="danmaku_auto_load">自动搜索</string>
+    <string name="danmaku_spider_first">爬虫优先</string>
+
+    <!-- Search -->
+    <string name="search_keyword">关键字…</string>
+    <string name="search_record">历史</string>
+    <string name="search_suggest">建议</string>
+    <string name="search_hot">热搜</string>
+
+    <!-- Dialog -->
+    <string name="dialog_edit">修改</string>
+    <string name="dialog_import">导入</string>
+    <string name="dialog_positive">确定</string>
+    <string name="dialog_negative">取消</string>
+    <string name="dialog_select_edition">选择标题</string>
+    <string name="dialog_select_chapter">选择章节</string>
+    <string name="dialog_config_hint">请输入配置…</string>
+    <string name="dialog_config_name">请输入名称…</string>
+    <string name="dialog_config_url">请输入地址…</string>
+
+    <!-- Error -->
+    <string name="file_export_success">文件已导出</string>
+    <string name="error_config_get">配置取得失败</string>
+    <string name="error_file_open">无法打开文件</string>
+    <string name="error_file_save">无法保存文件</string>
+    <string name="error_play_next">已经是最后一集了！</string>
+    <string name="error_play_prev">已经是第一集了！</string>
+    <string name="error_play_parse">播放地址解析失败</string>
+    <string name="error_play_drm">此设备不支持所需的 DRM scheme</string>
+    <string name="error_play_url">播放地址加载失败</string>
+    <string name="error_play_flag">暂无线路数据</string>
+    <string name="error_play_timeout">连接超时</string>
+    <string name="bdj_preparing">正在准备 BD-J 菜单</string>
+    <string name="error_bdj_prepare">ISO 菜单检查或 BD-J 准备失败：%1$s</string>
+    <string name="error_audio_effect_unsupported">当前播放方式不支持音质设置</string>
+    <string name="error_audio_effect_tunnel">隧道模式下不支持音质设置</string>
+    <string name="error_audio_effect_passthrough">音频直通音轨不支持音质设置</string>
+    <string name="error_audio_effect_apply">音质设置应用失败</string>
+    <string name="error_video_effect_unsupported">当前播放方式不支持画质设置</string>
+    <string name="error_video_effect_decode">画质设置需要视频硬解</string>
+    <string name="error_video_effect_drm">DRM 视频不支持画质设置</string>
+    <string name="error_video_effect_tunnel">隧道模式下不支持画质设置</string>
+    <string name="error_video_effect_dolby_vision_passthrough">杜比视界直通不支持画质设置</string>
+    <string name="error_play_tvbus">错误代码：<xliff:g name="name">%s</xliff:g></string>
+    <string name="error_detail">暂无播放数据</string>
+    <string name="error_empty">这里什麽都没有 👀</string>
+
+    <!-- Update -->
+    <string name="update_version">发现新版本 <xliff:g name="name">%s</xliff:g></string>
+    <string name="update_check">正在检测更新…</string>
+    <string name="update_confirm">更新</string>
+    <string name="update_background">后台下载</string>
+    <string name="update_downloading">正在下载更新…</string>
+    <string name="update_verifying">正在验证更新…</string>
+    <string name="update_verify_failed">更新文件验证失败</string>
+    <string name="update_install">安装</string>
+    <string name="update_ready">更新下载完成，点击以安装。</string>
+    <string name="update_interrupted">更新下载已停止</string>
+
+    <!-- Crash -->
+    <string name="crash_info">发生意外错误\n抱歉给您带来不便</string>
+    <string name="crash_restart">重新启动</string>
+    <string name="crash_details">错误信息</string>
+    <string name="crash_details_title">错误信息</string>
+    <string name="crash_details_close">关闭</string>
+
+    <!-- Hint -->
+    <string name="copied">已复制</string>
+
+    <!-- UNIT -->
+    <string name="all">全部</string>
+    <string name="yes">有</string>
+    <string name="none">无</string>
+    <string name="times">倍</string>
+    <string name="lines">行</string>
+
+    <string-array name="select_dolby_vision_output">
+        <item>自动</item>
+        <item>开</item>
+        <item>关</item>
+    </string-array>
+
+    <string-array name="select_size">
+        <item>小</item>
+        <item>中</item>
+        <item>大</item>
+        <item>特大</item>
+    </string-array>
+
+    <string-array name="select_scale">
+        <item>原始</item>
+        <item>填充</item>
+        <item>裁剪</item>
+    </string-array>
+
+    <string-array name="audio_effect_stability_levels">
+        <item>关闭</item>
+        <item>轻微</item>
+        <item>柔和</item>
+        <item>标准</item>
+        <item>明显</item>
+        <item>强力</item>
+    </string-array>
+
+    <string-array name="select_track">
+        <item>选择音轨</item>
+        <item>选择视轨</item>
+        <item>选择字幕</item>
+    </string-array>
+
+    <string name="content_title">浏览列表</string>
+    <string name="content_search">搜索内容</string>
+    <string name="content_search_action">搜索</string>
+    <string name="content_current">回到当前</string>
+    <string name="content_empty">暂无已加载的内容</string>
+    <string name="content_subtitle_unsupported">此字幕轨暂不支持浏览</string>
+    <string name="content_subtitle_loading">正在加载字幕…</string>
+    <string name="content_subtitle_partial">目前仅有已读取的字幕，内容会随播放更新</string>
+    <string name="content_subtitle_truncated">字幕已达内存上限，目前仅能搜索保留的内容</string>
+    <string name="content_subtitle_error">无法建立字幕文字索引</string>
+    <string name="content_subtitle_unselected">请先选择字幕轨</string>
+    <string name="content_no_match">没有匹配的内容</string>
+    <string name="content_following">跟随播放</string>
+    <string name="content_browsing">浏览中</string>
+    <string name="content_remote_hint">按右键移至“回到当前”</string>
+    <string name="content_image_subtitle">[图片字幕]</string>
+    <string name="content_retry">重试字幕</string>
+    <string name="content_retry_loading">载入中…</string>
+    <string name="subtitle_offset_primary">主字幕偏移</string>
+    <string name="subtitle_offset_secondary">副字幕偏移</string>
+    <string name="subtitle_offset_both">主副字幕偏移</string>
+    <string name="subtitle_offset_link">一起偏移</string>
+    <string name="subtitle_offset_reset">重置字幕时间</string>
+    <string name="subtitle_offset_limit">字幕偏移须在正负 300 秒内。</string>
+
+    <string name="decoder_setting">解码设置</string>
+    <string name="decoder_action">解码</string>
+    <string name="decoder_tab_video">视频</string>
+    <string name="decoder_tab_audio">音频</string>
+    <string name="decoder_mode_auto">自动</string>
+    <string name="decoder_mode_auto_detail">由播放器自动选择解码器</string>
+    <string name="decoder_mode_hardware">硬件</string>
+    <string name="decoder_mode_hardware_detail">仅使用硬件 MediaCodec 解码</string>
+    <string name="decoder_mode_software">软解</string>
+    <string name="decoder_mode_software_detail">仅使用软件 MediaCodec 解码</string>
+    <string name="decoder_mode_ffmpeg">软件</string>
+    <string name="decoder_mode_ffmpeg_detail">使用 FFmpeg 软件解码</string>
+    <string name="decoder_mode_unavailable">当前播放引擎没有可切换的解码模式。</string>
+
+    <string name="dialog_action_search_subtitles">搜索字幕</string>
+    <string name="dialog_action_load_subtitles">加载字幕</string>
+    <string name="dialog_action_search_danmaku">搜索弹幕</string>
+    <string name="dialog_action_load_danmaku">加载弹幕</string>
+    <string name="dialog_action_search_settings">搜索设置</string>
+
+    <string name="mpv_script_buttons">脚本</string>
+    <string name="exo_command_buttons">指令</string>
+    <string name="exo_command">播放指令（例如 seek +90）</string>
+    <string name="exo_command_error">指令操作失败</string>
+    <string name="exo_command_unavailable">当前播放无法执行此指令。</string>
+    <string name="exo_command_unsupported">Exo 不支持此指令。可用 seek、pause、speed、volume、sub-delay、audio-delay、loop-file、chapter、video-scale-x、video-scale-y、video-aspect-override。</string>
+    <string name="mpv_script_tab_buttons">按钮</string>
+    <string name="mpv_script_tab_automatic">自动加载</string>
+    <string name="mpv_script_add">新增</string>
+    <string name="mpv_script_add_button">新增按钮</string>
+    <string name="mpv_script_empty">尚未创建按钮。</string>
+    <string name="mpv_script_auto_empty">尚未导入启动 Lua。</string>
+    <string name="mpv_script_import">导入 Lua</string>
+    <string name="mpv_script_delete">删除</string>
+    <string name="mpv_script_rename">重命名</string>
+    <string name="mpv_script_replace">替换 Lua</string>
+    <string name="mpv_script_title">名称</string>
+    <string name="mpv_script_enable">启用</string>
+    <string name="mpv_script_disable">停用</string>
+    <string name="mpv_script_enabled">已启用</string>
+    <string name="mpv_script_disabled">已停用</string>
+    <string name="mpv_script_error">MPV 操作失败</string>
+    <string name="mpv_script_timeout">脚本未响应，已取消排队操作。</string>
+    <string name="mpv_script_unavailable">请先开始 MPV 播放。</string>
+    <string name="mpv_script_add_command">新增指令按钮</string>
+    <string name="mpv_script_edit_command">编辑指令</string>
+    <string name="mpv_script_command">MPV 指令</string>
+    <string name="mpv_script_command_detail">输入名称与指令。</string>
+    <string name="mpv_script_import_detail">将 Lua 建立为播放按钮。</string>
+    <string name="mpv_script_action">脚本动作</string>
+    <string name="mpv_script_status">运行状态</string>
+    <string name="mpv_script_no_status">暂无运行状态。</string>
+    <string name="mpv_script_running">执行中</string>
+    <string name="mpv_script_done">执行完成</string>
+    <string name="mpv_script_failed">执行失败</string>
+    <string name="mpv_script_hide">隐藏按钮</string>
+    <string name="mpv_script_show">显示按钮</string>
+    <string name="mpv_script_hidden">已隐藏</string>
+    <string name="mpv_script_move_earlier">往前移</string>
+    <string name="mpv_script_move_later">往后移</string>
+    <string name="mpv_script_loading">载入中</string>
+    <string name="mpv_script_loaded">已载入</string>
+
+    <string name="phone_input">远程输入</string>
+    <string name="log_action">日志</string>
+    <string name="device_open_web">操作</string>
+    <string name="device_view_logs">日志</string>
+    <string name="device_rename">命名设备</string>
+    <string name="device_identity_invalid">此设备没有有效的标识码</string>
+    <string name="device_address_invalid">设备地址无效</string>
+    <string name="device_browser_missing">没有可用的浏览器</string>
+    <string name="server_start_failed">无法启动设备连接，请稍后重试。</string>
+    <string name="device_empty">未找到设备，请确认设备都在同一网络。</string>
+    <string name="device_network_denied">需要本地网络权限才能搜索或连接设备。请在应用设置中允许，再点刷新。</string>
+    <string name="device_cast_pending">正在投屏到 %1$s…</string>
+    <string name="device_sync_pending">正在向 %1$s 发送同步…</string>
+    <string name="device_connect">设备连接</string>
+    <string name="device_searching">正在搜索设备…</string>
+    <string name="device_dlna_searching">正在搜索投屏设备，可点击刷新。</string>
+    <string name="device_cast_title">投屏到设备</string>
+    <string name="device_sync_history_title">同步历史</string>
+    <string name="device_sync_keep_title">同步收藏</string>
+    <string name="error_mpv_runtime">MPV 无法使用，改用 ExoPlayer：%1$s</string>
+    <string name="transfer_paused">已暂停</string>
+    <string name="transfer_resume">继续</string>
+    <string name="transfer_detail">%1$s/s · 剩余 %2$s</string>
+
+    <string name="auto_resume">继续播放</string>
+    <string name="auto_current_episode">当前播放集</string>
+    <string name="auto_add_favorite">加入收藏</string>
+    <string name="auto_remove_favorite">取消收藏</string>
+
+    <string name="dialog_processing">处理中…</string>
+    <string name="dialog_image">图片</string>
+    <string name="dialog_required">此字段必填</string>
+    <string name="dialog_min_length">请输入至少 %1$d 个字符</string>
+    <string name="dialog_max_length">请输入最多 %1$d 个字符</string>
+    <string name="dialog_min_choices">请选择至少 %1$d 个选项</string>
+    <string name="dialog_max_choices">请选择最多 %1$d 个选项</string>
+
+</resources>

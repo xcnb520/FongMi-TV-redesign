@@ -1,0 +1,55 @@
+package com.fongmi.android.tv.player.mpv;
+
+import android.net.Uri;
+
+import androidx.annotation.Nullable;
+import androidx.media3.mpvplayer.MpvConfigFileInspector;
+
+import com.github.catvod.utils.Path;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Set;
+
+public final class MpvConfigFile {
+
+    private static final String MPV_CONF = "mpv.conf";
+
+    public static String read() {
+        return Path.read(Path.mpv(MPV_CONF));
+    }
+
+    public static String read(Uri uri) throws IOException {
+        try (InputStream input = Path.open(uri, "Unable to open mpv.conf")) {
+            InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8.newDecoder());
+            StringBuilder content = new StringBuilder();
+            char[] buffer = new char[8192];
+            int count;
+            while ((count = reader.read(buffer)) != -1) content.append(buffer, 0, count);
+            return content.toString();
+        }
+    }
+
+    @Nullable
+    public static File getSubtitleFontsDirectory() {
+        return new MpvConfigFileInspector(Path.mpv()).readSubtitleFontsDirectory();
+    }
+
+    public static boolean write(String content) {
+        try {
+            Path.writeAtomically(Path.mpv(MPV_CONF), content.getBytes(StandardCharsets.UTF_8));
+            return true;
+        } catch (IOException | SecurityException e) {
+            return false;
+        }
+    }
+
+    public static List<String> findInterfaceManagedOptions(CharSequence content) {
+        Set<String> configured = new MpvConfigFileInspector(Path.mpv()).getEffectiveOptionNames(content);
+        return MpvUtil.getManagedOptionNames().stream().filter(option -> configured.contains(option) || configured.contains("no-" + option)).toList();
+    }
+}
