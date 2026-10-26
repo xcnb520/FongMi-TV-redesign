@@ -15,6 +15,7 @@ import com.fongmi.player.core.decode.VideoDecoder;
 import com.fongmi.player.core.demux.ExtractorDemuxer;
 import com.fongmi.player.core.demux.SampleQueue;
 import com.fongmi.player.core.render.VideoRenderer;
+import com.fongmi.player.core.source.SourceHandle;
 import com.fongmi.player.core.util.MediaUtil;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -79,7 +80,8 @@ public final class NativePlayerCore implements PlayerCore {
             try {
                 videoQueue = new SampleQueue(48);
                 audioQueue = new SampleQueue(96);
-                demuxer = new ExtractorDemuxer(context, source, videoQueue, audioQueue, demuxerListener);
+                SourceHandle handle = source.open(context);
+                demuxer = new ExtractorDemuxer(context, handle, videoQueue, audioQueue, demuxerListener);
                 demuxer.prepare();
                 tracks = demuxer.getTracks();
                 durationUs = demuxer.getDurationUs();

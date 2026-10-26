@@ -1,14 +1,14 @@
 package com.fongmi.player.core.demux;
 
 import android.content.Context;
+import android.media.MediaDataSource;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
-import android.net.Uri;
 
-import com.fongmi.player.core.MediaSource;
 import com.fongmi.player.core.PlaybackException;
 import com.fongmi.player.core.TrackInfo;
 import com.fongmi.player.core.TrackType;
+import com.fongmi.player.core.source.SourceHandle;
 import com.fongmi.player.core.util.BufferPool;
 import com.fongmi.player.core.util.MediaUtil;
 
@@ -25,20 +25,25 @@ public final class ExtractorDemuxer {
     }
 
     private final Context context;
-    private final MediaSource source;
+    private final SourceHandle handle;
     private final SampleQueue videoQueue;
     private final SampleQueue audioQueue;
     private final Listener listener;
     private final BufferPool bufferPool = new BufferPool(24, 256 * 1024);
     private final Object pauseLock = new Object();
 
-    private MediaExtractor extractor;
+    private MediaExtractor singleExtractor;
+    private MediaExtractor videoExtractor;
+    private MediaExtractor audioExtractor;
     private MediaFormat videoFormat;
     private MediaFormat audioFormat;
     private TrackInfo[] tracks = new TrackInfo[0];
     private int videoTrack = -1;
     private int audioTrack = -1;
     private long durationUs;
+    private boolean dual;
+    private boolean videoEnded;
+    private boolean audioEnded;
     private volatile Long pendingSeekUs;
     private volatile boolean running;
     private volatile boolean paused;
@@ -47,9 +52,9 @@ public final class ExtractorDemuxer {
     private volatile boolean audioEnabled = true;
     private Thread thread;
 
-    public ExtractorDemuxer(Context context, MediaSource source, SampleQueue videoQueue, SampleQueue audioQueue, Listener listener) {
+    public ExtractorDemuxer(Context context, SourceHandle handle, SampleQueue videoQueue, SampleQueue audioQueue, Listener listener) {
         this.context = context;
-        this.source = source;
+        this.handle = handle;
         this.videoQueue = videoQueue;
         this.audioQueue = audioQueue;
         this.listener = listener;
@@ -57,27 +62,43 @@ public final class ExtractorDemuxer {
 
     public void prepare() throws PlaybackException {
         try {
-            extractor = new MediaExtractor();
-            Uri uri = source.getUri();
-            Map<String, String> headers = source.getHeaders();
-            if (headers == null || headers.isEmpty()) extractor.setDataSource(context, uri, null);
-            else extractor.setDataSource(context, uri, headers);
-            for (int i = 0; i < extractor.getTrackCount(); i++) {
-                MediaFormat format = extractor.getTrackFormat(i);
-                String mime = format.getString(MediaFormat.KEY_MIME);
-                if (MediaUtil.isVideo(mime) && videoTrack < 0) {
-                    videoTrack = i;
-                    videoFormat = format;
-                } else if (MediaUtil.isAudio(mime) && audioTrack < 0) {
-                    audioTrack = i;
-                    audioFormat = format;
+            dual = handle.isDual();
+            if (dual) {
+                videoExtractor = new MediaExtractor();
+                videoExtractor.setDataSource(handle.getVideoDataSource());
+                audioExtractor = new MediaExtractor();
+                audioExtractor.setDataSource(handle.getAudioDataSource());
+                videoTrack = findTrack(videoExtractor, true);
+                audioTrack = findTrack(audioExtractor, false);
+                if (videoTrack < 0 || audioTrack < 0) throw new PlaybackException(PlaybackException.SOURCE_UNSUPPORTED, "Missing DASH track");
+                videoExtractor.selectTrack(videoTrack);
+                audioExtractor.selectTrack(audioTrack);
+            } else {
+                singleExtractor = new MediaExtractor();
+                MediaDataSource dataSource = handle.getVideoDataSource();
+                if (dataSource != null) singleExtractor.setDataSource(dataSource);
+                else if (handle.hasUri()) singleExtractor.setDataSource(context, handle.getUri(), handle.getHeaders());
+                else throw new PlaybackException(PlaybackException.SOURCE_UNSUPPORTED, "No source");
+                for (int i = 0; i < singleExtractor.getTrackCount(); i++) {
+                    MediaFormat format = singleExtractor.getTrackFormat(i);
+                    String mime = format.getString(MediaFormat.KEY_MIME);
+                    if (MediaUtil.isVideo(mime) && videoTrack < 0) {
+                        videoTrack = i;
+                        videoFormat = format;
+                    } else if (MediaUtil.isAudio(mime) && audioTrack < 0) {
+                        audioTrack = i;
+                        audioFormat = format;
+                    }
                 }
+                if (videoTrack < 0 && audioTrack < 0) throw new PlaybackException(PlaybackException.SOURCE_UNSUPPORTED, "No playable track");
+                if (videoTrack >= 0) singleExtractor.selectTrack(videoTrack);
+                if (audioTrack >= 0) singleExtractor.selectTrack(audioTrack);
             }
-            if (videoTrack < 0 && audioTrack < 0) throw new PlaybackException(PlaybackException.SOURCE_UNSUPPORTED, "No playable track");
-            if (videoTrack >= 0) extractor.selectTrack(videoTrack);
-            if (audioTrack >= 0) extractor.selectTrack(audioTrack);
-            durationUs = readDuration(videoFormat, audioFormat);
+            durationUs = Math.max(readDuration(videoFormat, audioFormat), handle.getDurationUs());
             tracks = buildTracks();
+        } catch (PlaybackException e) {
+            release();
+            throw e;
         } catch (Exception e) {
             release();
             throw new PlaybackException(PlaybackException.DEMUX_FAILED, e.getMessage(), e);
@@ -133,10 +154,13 @@ public final class ExtractorDemuxer {
             }
             thread = null;
         }
-        if (extractor != null) {
-            extractor.release();
-            extractor = null;
-        }
+        releaseExtractor(singleExtractor);
+        releaseExtractor(videoExtractor);
+        releaseExtractor(audioExtractor);
+        singleExtractor = null;
+        videoExtractor = null;
+        audioExtractor = null;
+        handle.close();
     }
 
     public MediaFormat getVideoFormat() {
@@ -161,11 +185,7 @@ public final class ExtractorDemuxer {
                 Long seek = pendingSeekUs;
                 if (seek != null) {
                     pendingSeekUs = null;
-                    extractor.seekTo(seek, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
-                    videoQueue.clear();
-                    audioQueue.clear();
-                    videoQueue.reset();
-                    audioQueue.reset();
+                    doSeek(seek);
                 }
                 if (paused) {
                     synchronized (pauseLock) {
@@ -173,39 +193,8 @@ public final class ExtractorDemuxer {
                     }
                     continue;
                 }
-                int track = extractor.getSampleTrackIndex();
-                if (track < 0) {
-                    finish();
-                    return;
-                }
-                long sampleSize = extractor.getSampleSize();
-                if (sampleSize <= 0L || sampleSize > Integer.MAX_VALUE) {
-                    finish();
-                    return;
-                }
-                int size = (int) sampleSize;
-                ByteBuffer buffer = bufferPool.acquire(size);
-                int read = extractor.readSampleData(buffer, 0);
-                if (read < 0) {
-                    bufferPool.release(buffer);
-                    finish();
-                    return;
-                }
-                buffer.position(0);
-                buffer.limit(read);
-                long ptsUs = extractor.getSampleTime();
-                int flags = extractor.getSampleFlags();
-                Sample sample = new Sample(buffer, ptsUs, flags, read, bufferPool);
-                if (track == videoTrack) {
-                    if (videoEnabled) videoQueue.put(sample);
-                    else sample.release();
-                } else if (track == audioTrack) {
-                    if (audioEnabled) audioQueue.put(sample);
-                    else sample.release();
-                } else {
-                    sample.release();
-                }
-                if (!extractor.advance()) {
+                boolean more = dual ? readDualStep() : readSingleStep();
+                if (!more) {
                     finish();
                     return;
                 }
@@ -217,16 +206,95 @@ public final class ExtractorDemuxer {
         }
     }
 
+    private boolean readSingleStep() throws InterruptedException {
+        int track = singleExtractor.getSampleTrackIndex();
+        if (track < 0 || singleExtractor.getSampleTime() < 0L) return false;
+        boolean video = track == videoTrack;
+        boolean audio = track == audioTrack;
+        if (!readSample(singleExtractor, video ? videoQueue : audioQueue, video ? videoEnabled : audioEnabled, video, audio)) return false;
+        return singleExtractor.advance();
+    }
+
+    private boolean readDualStep() throws InterruptedException {
+        long videoTime = videoEnabled ? videoExtractor.getSampleTime() : -1L;
+        long audioTime = audioEnabled ? audioExtractor.getSampleTime() : -1L;
+        if (videoTime < 0L && audioTime < 0L) return false;
+        boolean video = videoTime >= 0L && (audioTime < 0L || videoTime <= audioTime);
+        MediaExtractor extractor = video ? videoExtractor : audioExtractor;
+        if (!readSample(extractor, video ? videoQueue : audioQueue, true, video, !video)) return false;
+        if (!extractor.advance()) {
+            if (video) videoEnded = true;
+            else audioEnded = true;
+        }
+        if (videoEnded && audioEnded) return false;
+        if (videoEnded) videoEnabled = false;
+        if (audioEnded) audioEnabled = false;
+        return true;
+    }
+
+    private boolean readSample(MediaExtractor extractor, SampleQueue queue, boolean enabled, boolean video, boolean audio) throws InterruptedException {
+        long sampleSize = extractor.getSampleSize();
+        if (sampleSize <= 0L || sampleSize > Integer.MAX_VALUE) return false;
+        int size = (int) sampleSize;
+        ByteBuffer buffer = bufferPool.acquire(size);
+        int read = extractor.readSampleData(buffer, 0);
+        if (read < 0) {
+            bufferPool.release(buffer);
+            return false;
+        }
+        buffer.position(0);
+        buffer.limit(read);
+        Sample sample = new Sample(buffer, extractor.getSampleTime(), extractor.getSampleFlags(), read, bufferPool);
+        if (enabled) queue.put(sample);
+        else sample.release();
+        return true;
+    }
+
+    private void doSeek(long positionUs) {
+        videoEnded = false;
+        audioEnded = false;
+        if (dual) {
+            videoExtractor.seekTo(positionUs, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
+            audioExtractor.seekTo(positionUs, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
+        } else if (singleExtractor != null) {
+            singleExtractor.seekTo(positionUs, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
+        }
+        videoQueue.clear();
+        audioQueue.clear();
+        videoQueue.reset();
+        audioQueue.reset();
+    }
+
     private void finish() {
         videoQueue.end();
         audioQueue.end();
         if (!released) listener.onEnded();
     }
 
+    private int findTrack(MediaExtractor extractor, boolean video) {
+        for (int i = 0; i < extractor.getTrackCount(); i++) {
+            MediaFormat format = extractor.getTrackFormat(i);
+            String mime = format.getString(MediaFormat.KEY_MIME);
+            if (video && MediaUtil.isVideo(mime)) {
+                videoFormat = format;
+                return i;
+            }
+            if (!video && MediaUtil.isAudio(mime)) {
+                audioFormat = format;
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void releaseExtractor(MediaExtractor extractor) {
+        if (extractor != null) extractor.release();
+    }
+
     private long readDuration(MediaFormat video, MediaFormat audio) {
         long value = readLong(video, MediaFormat.KEY_DURATION);
-        if (value <= 0) value = readLong(audio, MediaFormat.KEY_DURATION);
-        return Math.max(0L, value);
+        long audioValue = readLong(audio, MediaFormat.KEY_DURATION);
+        return Math.max(Math.max(0L, value), Math.max(0L, audioValue));
     }
 
     private long readLong(MediaFormat format, String key) {

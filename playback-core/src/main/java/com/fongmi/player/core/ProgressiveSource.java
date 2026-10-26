@@ -1,6 +1,9 @@
 package com.fongmi.player.core;
 
+import android.content.Context;
 import android.net.Uri;
+
+import com.fongmi.player.core.source.SourceHandle;
 
 import java.util.Map;
 
@@ -17,5 +20,10 @@ public final class ProgressiveSource extends MediaSource {
     @Override
     public SourceType getType() {
         return SourceType.PROGRESSIVE;
+    }
+
+    @Override
+    public SourceHandle open(Context context) {
+        return SourceHandle.uri(getUri(), getHeaders(), 0L);
     }
 }

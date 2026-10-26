@@ -1,6 +1,9 @@
 package com.fongmi.player.core;
 
+import android.content.Context;
 import android.net.Uri;
+
+import com.fongmi.player.core.source.SourceHandle;
 
 import java.util.Collections;
 import java.util.Map;
@@ -24,4 +27,6 @@ public abstract class MediaSource {
     }
 
     public abstract SourceType getType();
+
+    public abstract SourceHandle open(Context context) throws PlaybackException;
 }

@@ -1,6 +1,10 @@
 package com.fongmi.player.core;
 
+import android.content.Context;
 import android.net.Uri;
+
+import com.fongmi.player.core.source.DashSession;
+import com.fongmi.player.core.source.SourceHandle;
 
 import java.util.Map;
 
@@ -17,5 +21,10 @@ public final class DashSource extends MediaSource {
     @Override
     public SourceType getType() {
         return SourceType.DASH;
+    }
+
+    @Override
+    public SourceHandle open(Context context) throws PlaybackException {
+        return new DashSession(getUri(), getHeaders()).open();
     }
 }
