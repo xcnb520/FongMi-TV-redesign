@@ -83,6 +83,11 @@ jobs:
           sleep 1
           curl -sI http://127.0.0.1:8000/vod/index.m3u8 | head -1
 
+      - name: Enable KVM
+        run: |
+          sudo chmod 666 /dev/kvm || true
+          ls -l /dev/kvm
+
       - name: Run emulator smoke test
         uses: reactivecircus/android-emulator-runner@v2
         with:
